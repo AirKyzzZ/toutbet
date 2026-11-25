@@ -1,3 +1,4 @@
+import io
 import json
 import threading
 import uuid
@@ -71,6 +72,31 @@ def test_as04_kyc_status_cannot_be_self_assigned(api: Api, client: TestClient) -
     assert status == "pending"
     assert _withdraw(client, player, {"amount_cents": 2000, "password": DEFAULT_PASSWORD}) == 403
     assert api.balance(player) == 5000
+
+
+def _kyc_status(api: Api, player: Player) -> str:
+    with api.db() as db:
+        return db.execute(select(User.kyc_status).where(User.email == player.email)).scalar_one()
+
+
+def test_as04_kyc_event_ignored_unless_verification_pending(
+    api: Api, captured_logs: io.StringIO
+) -> None:
+    never_started = api.signup()
+    verified = _verified_player(api)
+
+    unsolicited = api.kyc_event(never_started, "kyc.verified")
+    downgrade = api.kyc_event(verified, "kyc.rejected")
+
+    assert unsolicited.status_code == downgrade.status_code == 200
+    assert _kyc_status(api, never_started) == "none"
+    assert _kyc_status(api, verified) == "verified"
+    events = [json.loads(line) for line in captured_logs.getvalue().splitlines()]
+    ignored = [e for e in events if e["event"] == "psp.kyc_event_ignored"]
+    assert {(e["user_id"], e["event_type"]) for e in ignored} == {
+        (never_started.id, "kyc.verified"),
+        (verified.id, "kyc.rejected"),
+    }
 
 
 def test_as04_withdrawal_requires_verified_kyc(api: Api, client: TestClient) -> None:

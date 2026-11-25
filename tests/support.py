@@ -239,13 +239,18 @@ class Api:
         event = self.payment_event(response.json()["deposit_id"])
         assert self.signed_webhook(event).status_code == 200
 
-    def verify_kyc(self, player: Player) -> None:
+    def kyc_event(self, player: Player, event_type: str) -> Response:
         event = {
             "event_id": f"evt_{uuid.uuid4().hex}",
-            "type": "kyc.verified",
+            "type": event_type,
             "data": {"reference": player.id},
         }
-        assert self.signed_webhook(event).status_code == 200
+        return self.signed_webhook(event)
+
+    def verify_kyc(self, player: Player) -> None:
+        started = self.client.post("/api/kyc/start", headers=player.headers)
+        assert started.status_code == 200, started.text
+        assert self.kyc_event(player, "kyc.verified").status_code == 200
 
     def balance(self, player: Player) -> int:
         response = self.client.get("/api/wallet", headers=player.headers)

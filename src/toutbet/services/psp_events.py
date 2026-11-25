@@ -1,13 +1,14 @@
+import logging
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
-from sqlalchemy import update
+from sqlalchemy import CursorResult, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from toutbet.models import PspEvent, User
-from toutbet.models.user import KYC_REJECTED, KYC_VERIFIED
+from toutbet.models.user import KYC_PENDING, KYC_REJECTED, KYC_VERIFIED
 from toutbet.observability import log_event
 from toutbet.schemas.psp import KycEvent, PaymentEvent, WebhookEnvelope
 from toutbet.services.deposits import credit_deposit, mark_payment_failed
@@ -46,10 +47,22 @@ def _apply_kyc(db: Session, event: KycEvent) -> None:
     except ValueError:
         log_event("psp.unmatched_kyc", event_id=event.event_id)
         return
-    db.execute(
-        update(User)
-        .where(User.id == user_id)
-        .values(kyc_status=KYC_STATUSES[event.type])
-        .execution_options(synchronize_session=False)
+    updated = cast(
+        CursorResult[Any],
+        db.execute(
+            update(User)
+            .where(User.id == user_id, User.kyc_status == KYC_PENDING)
+            .values(kyc_status=KYC_STATUSES[event.type])
+            .execution_options(synchronize_session=False)
+        ),
     )
+    if updated.rowcount != 1:
+        log_event(
+            "psp.kyc_event_ignored",
+            level=logging.WARNING,
+            user_id=str(user_id),
+            event_id=event.event_id,
+            event_type=event.type,
+        )
+        return
     log_event("kyc.status_changed", user_id=str(user_id), status=KYC_STATUSES[event.type])
