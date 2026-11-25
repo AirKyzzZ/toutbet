@@ -10,16 +10,18 @@ from sqlalchemy import ColumnElement, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from toutbet.clock import Clock, SystemClock
-from toutbet.config import load_database_settings
+from toutbet.config import load_worker_settings
 from toutbet.db import make_engine, make_session_factory
 from toutbet.models import Bet, ChainHead
 from toutbet.models.bet import STATUS_CLOSED, STATUS_DISPUTED, STATUS_OPEN, STATUS_RESULT_PROPOSED
 from toutbet.models.ledger import AUDIT_CHAIN, LEDGER_CHAIN
 from toutbet.observability import configure_logging, log_event
+from toutbet.psp.client import HttpPspClient, PspClient
 from toutbet.services.bet_state import InvalidTransitionError, transition
 from toutbet.services.idempotency import purge_expired
 from toutbet.services.ledger import SYSTEM_TRACE, append_audit_event
 from toutbet.services.settlement import apply_settlement
+from toutbet.services.withdrawals import reconcile_withdrawals
 
 TICK_INTERVAL_SECONDS = 30
 LEDGER_HEAD_INTERVAL_SECONDS = 300
@@ -31,14 +33,16 @@ class TickReport:
     closed: int = 0
     escalated: int = 0
     settled: int = 0
+    reconciled: int = 0
 
 
-def tick(session: Session, clock: Clock) -> TickReport:
+def tick(session: Session, clock: Clock, psp: PspClient) -> TickReport:
     now = clock.now()
     report = TickReport(
         closed=_close_due_bets(session, now),
         escalated=_escalate_silent_bets(session, now),
         settled=_settle_uncontested_bets(session, now),
+        reconciled=reconcile_withdrawals(session, now, psp),
     )
     with session.begin():
         purge_expired(session, now)
@@ -133,13 +137,15 @@ def emit_ledger_head(session: Session) -> None:
     )
 
 
-def run(factory: sessionmaker[Session], clock: Clock, stop: threading.Event) -> None:
+def run(
+    factory: sessionmaker[Session], clock: Clock, psp: PspClient, stop: threading.Event
+) -> None:
     last_head: float | None = None
     while not stop.is_set():
         started = time.monotonic()
         with factory() as session:
             try:
-                report = tick(session, clock)
+                report = tick(session, clock, psp)
                 log_event("worker.tick", **report.__dict__)
                 if last_head is None or started - last_head >= LEDGER_HEAD_INTERVAL_SECONDS:
                     emit_ledger_head(session)
@@ -151,11 +157,13 @@ def run(factory: sessionmaker[Session], clock: Clock, stop: threading.Event) -> 
 
 def main() -> None:
     configure_logging()
-    settings = load_database_settings()
+    settings = load_worker_settings()
     engine = make_engine(settings.database_url.get_secret_value())
+    psp = HttpPspClient(settings.psp_base_url, settings.psp_api_key.get_secret_value())
     stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: stop.set())
     signal.signal(signal.SIGINT, lambda *_: stop.set())
     log_event("worker.started")
-    run(make_session_factory(engine), SystemClock(), stop)
+    run(make_session_factory(engine), SystemClock(), psp, stop)
+    psp.close()
     engine.dispose()

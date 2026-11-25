@@ -31,6 +31,7 @@ class ErrorCode(StrEnum):
     RATE_LIMITED = "RATE_LIMITED"
     INTERNAL_ERROR = "INTERNAL_ERROR"
     PSP_UNAVAILABLE = "PSP_UNAVAILABLE"
+    WITHDRAWAL_PENDING = "WITHDRAWAL_PENDING"
     FEATURE_DISABLED = "FEATURE_DISABLED"
 
 
@@ -57,6 +58,10 @@ MESSAGES: dict[ErrorCode, str] = {
     ErrorCode.RATE_LIMITED: "Trop de requêtes, réessayez plus tard.",
     ErrorCode.INTERNAL_ERROR: "Erreur interne.",
     ErrorCode.PSP_UNAVAILABLE: "Le prestataire de paiement est indisponible.",
+    ErrorCode.WITHDRAWAL_PENDING: (
+        "Retrait en attente de confirmation du prestataire de paiement. Le montant reste "
+        "réservé, il sera versé ou recrédité automatiquement."
+    ),
     ErrorCode.FEATURE_DISABLED: "Fonctionnalité temporairement désactivée.",
 }
 

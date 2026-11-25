@@ -108,6 +108,31 @@ def test_kyc_page_offers_validation_button(mock: TestClient, sent: list[dict[str
     assert b'"kyc.verified"' in sent[0]["content"]
 
 
+def _payout(mock: TestClient, key: str | None, reference: str = "wd-1") -> httpx.Response:
+    headers = {"Authorization": f"Bearer {API_KEY}"}
+    if key is not None:
+        headers["Idempotency-Key"] = key
+    body = {"reference": reference, "user_reference": "u1", "amount_cents": 2000, "currency": "EUR"}
+    return mock.post("/v1/payouts", json=body, headers=headers)
+
+
+def test_payout_is_created_once_per_idempotency_key(mock: TestClient) -> None:
+    auth = {"Authorization": f"Bearer {API_KEY}"}
+
+    first = _payout(mock, "wd-1")
+    replay = _payout(mock, "wd-1")
+    missing_key = _payout(mock, None, reference="wd-2")
+    found = mock.get("/v1/payouts/wd-1", headers=auth)
+    unknown = mock.get("/v1/payouts/wd-2", headers=auth)
+
+    assert first.status_code == replay.status_code == 200
+    assert first.json()["payout_id"] == replay.json()["payout_id"]
+    assert missing_key.status_code == 422
+    assert found.json() == {"payout_id": first.json()["payout_id"], "status": "paid"}
+    assert unknown.status_code == 404
+    assert mock.get("/v1/payouts/wd-1").status_code == 401
+
+
 def test_toutbet_never_imports_mock_psp() -> None:
     source = Path(__file__).parents[2] / "src" / "toutbet"
 

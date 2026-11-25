@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse, Response
 from mock_psp.models import (
     CheckoutRequest,
     KycRequest,
+    PayoutRecord,
     PayoutRequest,
     SafeId,
     Store,
@@ -39,11 +40,29 @@ def register_api(app: FastAPI, settings: MockPspSettings, store: Store) -> None:
         return {"session_id": session_id, "redirect_url": f"{settings.public_url}/kyc/{session_id}"}
 
     @app.post("/v1/payouts", dependencies=protected)
-    def create_payout(body: PayoutRequest) -> dict[str, str]:
-        if settings.refuse_payouts:
+    def create_payout(
+        body: PayoutRequest, idempotency_key: Annotated[SafeId, Header(alias="Idempotency-Key")]
+    ) -> dict[str, str]:
+        status = "refused" if settings.refuse_payouts else "paid"
+        candidate = PayoutRecord(body.reference, new_id("po"), status)
+        record = store.payouts.setdefault(idempotency_key, candidate)
+        if record is candidate:
+            log_event(
+                "mock_psp.payout",
+                reference=body.reference,
+                amount_cents=body.amount_cents,
+                status=status,
+            )
+        if record.status == "refused":
             raise HTTPException(status_code=402)
-        log_event("mock_psp.payout", reference=body.reference, amount_cents=body.amount_cents)
-        return {"payout_id": new_id("po")}
+        return {"payout_id": record.payout_id}
+
+    @app.get("/v1/payouts/{reference}", dependencies=protected)
+    def find_payout(reference: SafeId) -> dict[str, str]:
+        for record in list(store.payouts.values()):
+            if record.reference == reference:
+                return {"payout_id": record.payout_id, "status": record.status}
+        raise HTTPException(status_code=404)
 
 
 def register_pages(app: FastAPI, settings: MockPspSettings, store: Store) -> None:

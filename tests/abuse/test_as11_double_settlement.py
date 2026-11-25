@@ -29,7 +29,7 @@ def test_as11_concurrent_settlement_pays_once(api: Api) -> None:
     def run_tick(_: int) -> int:
         with factory() as session:
             barrier.wait()
-            return tick(session, api.clock).settled
+            return tick(session, api.clock, api.psp).settled
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
         settled = list(pool.map(run_tick, range(workers)))

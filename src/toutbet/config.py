@@ -26,12 +26,48 @@ class DatabaseSettings(BaseSettings):
     database_admin_url: SecretStr | None = None
 
 
-class Settings(DatabaseSettings):
+def reject_empty(value: Any) -> Any:
+    if isinstance(value, str) and not value.strip():
+        raise ValueError("is missing")
+    return value
+
+
+def require_long(value: SecretStr) -> SecretStr:
+    if len(value.get_secret_value().encode("utf-8")) < MIN_SECRET_BYTES:
+        raise ValueError(f"is too weak, at least {MIN_SECRET_BYTES} bytes are required")
+    return value
+
+
+def require_http_url(value: str) -> str:
+    if not value.startswith(("https://", "http://")):
+        raise ValueError("must be an http(s) URL")
+    return value.rstrip("/")
+
+
+class WorkerSettings(DatabaseSettings):
     env: Literal["dev", "test", "prod"] = "prod"
-    jwt_secret: SecretStr
-    receipt_signing_key: SecretStr
     psp_base_url: str
     psp_api_key: SecretStr
+
+    @field_validator("psp_api_key", mode="before")
+    @classmethod
+    def reject_empty_api_key(cls, value: Any) -> Any:
+        return reject_empty(value)
+
+    @field_validator("psp_api_key")
+    @classmethod
+    def require_long_api_key(cls, value: SecretStr) -> SecretStr:
+        return require_long(value)
+
+    @field_validator("psp_base_url")
+    @classmethod
+    def require_http_psp_url(cls, value: str) -> str:
+        return require_http_url(value)
+
+
+class Settings(WorkerSettings):
+    jwt_secret: SecretStr
+    receipt_signing_key: SecretStr
     psp_webhook_secret: SecretStr
     public_base_url: str
     allowed_hosts: Annotated[list[str], NoDecode] = ["localhost"]
@@ -67,21 +103,15 @@ class Settings(DatabaseSettings):
             raise ValueError("must list explicit origins, '*' is not allowed")
         return value
 
-    @field_validator(
-        "jwt_secret", "receipt_signing_key", "psp_api_key", "psp_webhook_secret", mode="before"
-    )
+    @field_validator("jwt_secret", "receipt_signing_key", "psp_webhook_secret", mode="before")
     @classmethod
     def reject_empty_secret(cls, value: Any) -> Any:
-        if isinstance(value, str) and not value.strip():
-            raise ValueError("is missing")
-        return value
+        return reject_empty(value)
 
-    @field_validator("jwt_secret", "psp_api_key", "psp_webhook_secret")
+    @field_validator("jwt_secret", "psp_webhook_secret")
     @classmethod
     def require_long_secret(cls, value: SecretStr) -> SecretStr:
-        if len(value.get_secret_value().encode("utf-8")) < MIN_SECRET_BYTES:
-            raise ValueError(f"is too weak, at least {MIN_SECRET_BYTES} bytes are required")
-        return value
+        return require_long(value)
 
     @field_validator("receipt_signing_key")
     @classmethod
@@ -89,12 +119,10 @@ class Settings(DatabaseSettings):
         decode_seed(value.get_secret_value())
         return value
 
-    @field_validator("psp_base_url", "public_base_url")
+    @field_validator("public_base_url")
     @classmethod
-    def require_http_url(cls, value: str) -> str:
-        if not value.startswith(("https://", "http://")):
-            raise ValueError("must be an http(s) URL")
-        return value.rstrip("/")
+    def require_http_public_url(cls, value: str) -> str:
+        return require_http_url(value)
 
 
 def decode_seed(encoded: str) -> bytes:
@@ -129,6 +157,13 @@ def load_settings(**overrides: Any) -> Settings:
 def load_database_settings(**overrides: Any) -> DatabaseSettings:
     try:
         return DatabaseSettings(**overrides)
+    except ValidationError as error:
+        raise ConfigurationError(describe_validation_error(error)) from None
+
+
+def load_worker_settings(**overrides: Any) -> WorkerSettings:
+    try:
+        return WorkerSettings(**overrides)
     except ValidationError as error:
         raise ConfigurationError(describe_validation_error(error)) from None
 

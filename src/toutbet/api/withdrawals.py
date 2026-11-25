@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 
@@ -87,17 +89,22 @@ def build_router(limits: RateLimits) -> APIRouter:
                 amount_cents=withdrawal.amount_cents,
                 currency=CURRENCY,
             )
-        except (PspUnavailableError, PspRefusedError) as error:
+        except PspRefusedError:
             with db.begin():
                 reverse_withdrawal(
-                    db,
-                    withdrawal=withdrawal,
-                    now=clock.now(),
-                    trace=trace,
-                    reason=type(error).__name__,
+                    db, withdrawal=withdrawal, now=clock.now(), trace=trace, reason="psp_refused"
                 )
                 release(db, user_id=user.id, key=key)
             raise ApiError(503, ErrorCode.PSP_UNAVAILABLE, REVERSED_MESSAGE) from None
+        except PspUnavailableError as error:
+            log_event(
+                "money.withdrawal_unconfirmed",
+                level=logging.WARNING,
+                user_id=str(user.id),
+                withdrawal_id=str(withdrawal.id),
+                cause=str(error),
+            )
+            raise ApiError(503, ErrorCode.WITHDRAWAL_PENDING) from None
         payload = WithdrawalView(
             id=withdrawal.id, amount_cents=withdrawal.amount_cents, status=WITHDRAWAL_SENT
         ).model_dump(mode="json")

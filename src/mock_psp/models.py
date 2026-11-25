@@ -33,10 +33,18 @@ class PayoutRequest(StrictBody):
     currency: Currency
 
 
+@dataclass(frozen=True)
+class PayoutRecord:
+    reference: str
+    payout_id: str
+    status: str
+
+
 @dataclass
 class Store:
     checkouts: dict[str, CheckoutRequest] = field(default_factory=dict)
     kyc: dict[str, KycRequest] = field(default_factory=dict)
+    payouts: dict[str, PayoutRecord] = field(default_factory=dict)
 
 
 def new_id(prefix: str) -> str:

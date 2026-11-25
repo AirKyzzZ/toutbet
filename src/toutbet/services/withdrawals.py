@@ -1,5 +1,6 @@
+import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, cast
 
 from sqlalchemy import CursorResult, select, update
@@ -9,15 +10,19 @@ from toutbet.errors import ApiError, ErrorCode
 from toutbet.models import User, Withdrawal
 from toutbet.models.payment import WITHDRAWAL_FAILED, WITHDRAWAL_PENDING, WITHDRAWAL_SENT
 from toutbet.observability import log_event
+from toutbet.psp.client import Payout, PspClient, PspRefusedError, PspUnavailableError
 from toutbet.security.authz import CurrentUser
 from toutbet.security.passwords import verify_password
-from toutbet.services.ledger import Trace
+from toutbet.services.deposits import CURRENCY
+from toutbet.services.ledger import SYSTEM_TRACE, Trace
 from toutbet.services.money import (
     PSP_CLEARING,
     InsufficientFundsError,
     transfer,
     wallet_account,
 )
+
+RECONCILIATION_DELAY = timedelta(minutes=5)
 
 
 def password_matches(db: Session, user_id: uuid.UUID, password: str | None) -> bool:
@@ -94,3 +99,57 @@ def reverse_withdrawal(
         withdrawal_id=str(withdrawal.id),
         reason=reason,
     )
+
+
+def _unconfirmed_withdrawals(db: Session, now: datetime) -> list[Withdrawal]:
+    with db.begin():
+        return list(
+            db.scalars(
+                select(Withdrawal).where(
+                    Withdrawal.status == WITHDRAWAL_PENDING,
+                    Withdrawal.created_at <= now - RECONCILIATION_DELAY,
+                )
+            )
+        )
+
+
+def _resolve_payout(psp: PspClient, withdrawal: Withdrawal) -> Payout:
+    known = psp.find_payout(reference=str(withdrawal.id))
+    if known is None:
+        return psp.create_payout(
+            reference=str(withdrawal.id),
+            user_reference=str(withdrawal.user_id),
+            amount_cents=withdrawal.amount_cents,
+            currency=CURRENCY,
+        )
+    if known.status == "refused":
+        raise PspRefusedError("payout refused")
+    return Payout(known.payout_id)
+
+
+def reconcile_withdrawals(db: Session, now: datetime, psp: PspClient) -> int:
+    reconciled = 0
+    for withdrawal in _unconfirmed_withdrawals(db, now):
+        try:
+            payout = _resolve_payout(psp, withdrawal)
+        except PspRefusedError:
+            with db.begin():
+                reverse_withdrawal(
+                    db, withdrawal=withdrawal, now=now, trace=SYSTEM_TRACE, reason="psp_refused"
+                )
+            outcome = WITHDRAWAL_FAILED
+        except PspUnavailableError as error:
+            log_event(
+                "money.withdrawal_unconfirmed",
+                level=logging.WARNING,
+                withdrawal_id=str(withdrawal.id),
+                cause=str(error),
+            )
+            continue
+        else:
+            with db.begin():
+                mark_sent(db, withdrawal.id, payout.payout_id)
+            outcome = WITHDRAWAL_SENT
+        log_event("money.withdrawal_reconciled", withdrawal_id=str(withdrawal.id), status=outcome)
+        reconciled += 1
+    return reconciled

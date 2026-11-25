@@ -14,7 +14,7 @@ from httpx import Response
 from sqlalchemy.orm import Session
 
 from toutbet.models.user import ROLE_MODERATOR
-from toutbet.psp.client import HostedSession, Payout
+from toutbet.psp.client import HostedSession, Payout, PayoutStatus, PspRefusedError
 from toutbet.security.passwords import hash_password
 from toutbet.security.webhook_signature import sign_webhook
 from toutbet.services.accounts import create_user
@@ -49,9 +49,12 @@ class FakeClock:
 class FakePsp:
     checkouts: dict[str, dict[str, Any]] = field(default_factory=dict)
     payouts: list[dict[str, Any]] = field(default_factory=list)
+    payout_statuses: dict[str, PayoutStatus] = field(default_factory=dict)
     kyc_sessions: list[dict[str, Any]] = field(default_factory=list)
     checkout_error: Exception | None = None
     payout_error: Exception | None = None
+    payout_reply_error: Exception | None = None
+    lookup_error: Exception | None = None
     _lock: threading.Lock = field(default_factory=threading.Lock)
 
     def create_checkout(
@@ -81,10 +84,24 @@ class FakePsp:
         if self.payout_error is not None:
             raise self.payout_error
         with self._lock:
-            self.payouts.append(
-                {"reference": reference, "user": user_reference, "amount_cents": amount_cents}
-            )
-        return Payout(f"po_{uuid.uuid4().hex}")
+            status = self.payout_statuses.get(reference)
+            if status is None:
+                status = PayoutStatus(f"po_{uuid.uuid4().hex}", "paid")
+                self.payout_statuses[reference] = status
+                self.payouts.append(
+                    {"reference": reference, "user": user_reference, "amount_cents": amount_cents}
+                )
+        if self.payout_reply_error is not None:
+            raise self.payout_reply_error
+        if status.status == "refused":
+            raise PspRefusedError("status 402")
+        return Payout(status.payout_id)
+
+    def find_payout(self, *, reference: str) -> PayoutStatus | None:
+        if self.lookup_error is not None:
+            raise self.lookup_error
+        with self._lock:
+            return self.payout_statuses.get(reference)
 
 
 @dataclass(eq=False)
@@ -117,7 +134,7 @@ class Api:
     def tick(self) -> TickReport:
         factory = self.client.app.state.session_factory
         with factory() as session:
-            return tick(session, self.clock)
+            return tick(session, self.clock, self.psp)
 
     def start_event(self, bet: dict[str, Any], *players: Player) -> None:
         moment = datetime.fromisoformat(bet["event_starts_at"])

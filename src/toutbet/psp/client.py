@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Annotated, Any, Protocol
+from typing import Annotated, Any, Literal, Protocol
 
 import httpx
 from fastapi import Request
@@ -8,6 +8,8 @@ from pydantic import BaseModel, ConfigDict, StringConstraints, ValidationError
 PSP_TIMEOUT = httpx.Timeout(5.0, connect=2.0)
 SafeId = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_-]{1,128}$")]
 HostedUrl = Annotated[str, StringConstraints(pattern=r"^https?://[^\s]{1,2000}$")]
+PayoutState = Literal["paid", "refused"]
+IDEMPOTENCY_HEADER = "Idempotency-Key"
 
 
 class PspUnavailableError(Exception):
@@ -15,6 +17,10 @@ class PspUnavailableError(Exception):
 
 
 class PspRefusedError(Exception):
+    pass
+
+
+class PspNotFoundError(PspRefusedError):
     pass
 
 
@@ -29,6 +35,12 @@ class Payout:
     payout_id: str
 
 
+@dataclass(frozen=True)
+class PayoutStatus:
+    payout_id: str
+    status: PayoutState
+
+
 class PspClient(Protocol):
     def create_checkout(
         self, *, reference: str, amount_cents: int, currency: str, return_url: str
@@ -40,6 +52,8 @@ class PspClient(Protocol):
         self, *, reference: str, user_reference: str, amount_cents: int, currency: str
     ) -> Payout: ...
 
+    def find_payout(self, *, reference: str) -> PayoutStatus | None: ...
+
 
 class _HostedSessionBody(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -50,6 +64,10 @@ class _HostedSessionBody(BaseModel):
 class _PayoutBody(BaseModel):
     model_config = ConfigDict(extra="ignore")
     payout_id: SafeId
+
+
+class _PayoutStatusBody(_PayoutBody):
+    status: PayoutState
 
 
 class HttpPspClient:
@@ -78,7 +96,8 @@ class HttpPspClient:
     def create_checkout(
         self, *, reference: str, amount_cents: int, currency: str, return_url: str
     ) -> HostedSession:
-        body = self._post(
+        body = self._send(
+            "POST",
             "/v1/checkout_sessions",
             {
                 "reference": reference,
@@ -91,14 +110,17 @@ class HttpPspClient:
         return HostedSession(parsed.session_id, parsed.redirect_url)
 
     def create_kyc_session(self, *, reference: str, return_url: str) -> HostedSession:
-        body = self._post("/v1/kyc_sessions", {"reference": reference, "return_url": return_url})
+        body = self._send(
+            "POST", "/v1/kyc_sessions", {"reference": reference, "return_url": return_url}
+        )
         parsed = self._parse(_HostedSessionBody, body)
         return HostedSession(parsed.session_id, parsed.redirect_url)
 
     def create_payout(
         self, *, reference: str, user_reference: str, amount_cents: int, currency: str
     ) -> Payout:
-        body = self._post(
+        body = self._send(
+            "POST",
             "/v1/payouts",
             {
                 "reference": reference,
@@ -106,16 +128,35 @@ class HttpPspClient:
                 "amount_cents": amount_cents,
                 "currency": currency,
             },
+            headers={IDEMPOTENCY_HEADER: reference},
         )
         return Payout(self._parse(_PayoutBody, body).payout_id)
 
-    def _post(self, path: str, payload: dict[str, Any]) -> Any:
+    def find_payout(self, *, reference: str) -> PayoutStatus | None:
         try:
-            response = self._client.post(path, json=payload)
+            body = self._send("GET", f"/v1/payouts/{reference}")
+        except PspNotFoundError:
+            return None
+        except PspRefusedError as error:
+            raise PspUnavailableError(str(error)) from error
+        parsed = self._parse(_PayoutStatusBody, body)
+        return PayoutStatus(parsed.payout_id, parsed.status)
+
+    def _send(
+        self,
+        method: str,
+        path: str,
+        payload: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> Any:
+        try:
+            response = self._client.request(method, path, json=payload, headers=headers)
         except httpx.HTTPError as error:
             raise PspUnavailableError(type(error).__name__) from error
         if response.status_code >= 500:
             raise PspUnavailableError(f"status {response.status_code}")
+        if response.status_code == 404:
+            raise PspNotFoundError("status 404")
         if response.status_code >= 400:
             raise PspRefusedError(f"status {response.status_code}")
         try:
