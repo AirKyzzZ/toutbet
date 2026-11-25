@@ -33,6 +33,28 @@ def test_as16_invalid_uuid_error_does_not_echo_characters(api: Api, client: Test
         assert messages == {"Input should be a valid UUID"}
 
 
+@pytest.mark.parametrize("field", ["title", "description"])
+def test_as16_nul_character_in_bet_rejected_before_the_database(
+    api: Api, client: TestClient, field: str
+) -> None:
+    bookie = api.signup()
+
+    response = client.post(
+        "/api/bets", json=api.bet_body(**{field: "Pari\x00 du soir"}), headers=bookie.headers
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_as16_nul_character_in_login_rejected_before_the_database(client: TestClient) -> None:
+    response = client.post(
+        "/api/auth/login", json={"email": "bob\x00@example.org", "password": DEFAULT_PASSWORD}
+    )
+
+    assert response.status_code == 422
+
+
 def test_as16_unhandled_error_returns_generic_body(
     api: Api, client: TestClient, captured_logs: io.StringIO
 ) -> None:

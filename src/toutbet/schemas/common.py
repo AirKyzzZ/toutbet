@@ -1,7 +1,15 @@
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
-from pydantic import AfterValidator, AwareDatetime, BaseModel, ConfigDict, Field, StrictInt
+from pydantic import (
+    AfterValidator,
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictInt,
+    field_validator,
+)
 
 Outcome = Literal["OUI", "NON"]
 ResultOutcome = Literal["OUI", "NON", "ANNULE"]
@@ -32,6 +40,13 @@ UtcDatetime = Annotated[AwareDatetime, AfterValidator(to_utc)]
 
 class RequestModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator("*")
+    @classmethod
+    def reject_nul_characters(cls, value: object) -> object:
+        if isinstance(value, str) and "\x00" in value:
+            raise ValueError("must not contain NUL characters")
+        return value
 
 
 class StatusResponse(BaseModel):
