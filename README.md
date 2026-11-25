@@ -89,9 +89,15 @@ uv run toutbet-admin gen-secrets
 uv run toutbet-admin init-db [--grants deploy/postgres/grants.sql]
 uv run toutbet-admin create-moderator --email mod@example.org --display-name mod_alice --birth-date 1985-01-31
 uv run toutbet-admin verify-ledger
+uv run toutbet-admin revoke-access --email mod@example.org
+uv run toutbet-admin check-alerts app.log
 ```
 
 `create-moderator` reads the password twice with `getpass`; there is no `--password` option and no HTTP route that creates or promotes a moderator. `verify-ledger` recomputes the ledger and audit chains, checks every wallet against the sum of its entries, every deposit credit against a succeeded deposit and every finished bet's escrow, and stops with a non-zero exit code on the first anomaly. In Compose: `docker compose exec app toutbet-admin verify-ledger`.
+
+`revoke-access` revokes every active session of an account (the next request with its token gets 401) and removes the moderator role, recorded in the audit chain as `admin.access_revoked`. `check-alerts` reads JSON log lines and prints the alerts that five of the rules in `docs/ateliers/atelier4/supervision.md` would raise, with exit code 1 when there is at least one.
+
+The mock PSP accepts `MOCK_PSP_LATENCY_MS` (and `MOCK_PSP_LATENCY_DURATION_S`, 0 meaning forever) to answer its API late after doing the work, for the chaos run in `docs/ateliers/atelier4/chaos.md`. `BET_CREATION_ENABLED=false` turns off bet creation only: the API answers 503 with a French message and the front shows a banner.
 
 ## Abuse stories
 
