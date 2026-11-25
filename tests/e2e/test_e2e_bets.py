@@ -46,6 +46,57 @@ def _assert_rendered_as_text(phone: Phone, *payloads: str) -> None:
     assert phone.csp_violations == []
 
 
+def test_e2e_as05_html_in_every_free_text_field_renders_as_text(
+    phones: Callable[..., Phone], api: Api
+) -> None:
+    bookie = phones()
+    bookie.signup(new_account("bookie"))
+    bet_id = bookie.create_bet(TITLE_XSS, description=DESCRIPTION_XSS)
+    _assert_rendered_as_text(bookie, TITLE_XSS, DESCRIPTION_XSS)
+    link = bookie.invite(bet_id)
+    bettor_account = new_account("bettor")
+    bettor_token = api.signup(bettor_account)
+    api.fund(bettor_token, 2000)
+    api.join(bettor_token, link)
+    assert api.stake(bettor_token, bet_id, "OUI", 1000).status_code == 201
+    start_event(api.stack, bet_id)
+
+    bookie.open(f"#/bets/{bet_id}")
+    bookie.page.get_by_label("Résultat").select_option("NON")
+    bookie.page.get_by_label("Justificatif (texte)").fill(NOTE_XSS)
+    bookie.page.get_by_role("button", name="Proposer le résultat").click()
+    expect(bookie.view.get_by_text("Résultat proposé").first).to_be_visible()
+    _assert_rendered_as_text(bookie, NOTE_XSS)
+
+    bettor = phones()
+    bettor.login(bettor_account)
+    bettor.open("#/bets")
+    expect(bettor.view.get_by_role("link", name=TITLE_XSS)).to_be_visible()
+    bettor.open(f"#/bets/{bet_id}")
+    _assert_rendered_as_text(bettor, TITLE_XSS, DESCRIPTION_XSS, NOTE_XSS)
+    bettor.page.get_by_label("Motif de contestation").fill(REASON_XSS)
+    bettor.page.get_by_role("button", name="Contester le résultat").click()
+    expect(bettor.view.get_by_text("En litige")).to_be_visible()
+
+    moderator_account = new_account("mod")
+    seed_account(api.stack, moderator_account, moderator=True)
+    moderator = phones()
+    moderator.login(moderator_account)
+    expect(moderator.page.get_by_role("heading", name=TITLE_XSS)).to_be_visible()
+    _assert_rendered_as_text(moderator, TITLE_XSS, NOTE_XSS, REASON_XSS)
+    moderator.page.get_by_label("Décision").select_option("OUI")
+    moderator.page.get_by_label("Justification (20 caractères minimum)").fill(JUSTIFICATION_XSS)
+    moderator.page.get_by_role("button", name="Trancher").click()
+    expect(moderator.view.get_by_text("0 pari(s) à trancher.")).to_be_visible()
+
+    bettor.open(f"#/bets/{bet_id}")
+    expect(bettor.view.get_by_text("Réglé")).to_be_visible()
+    _assert_rendered_as_text(bettor, JUSTIFICATION_XSS)
+    for device in (bookie, bettor, moderator):
+        assert all("evidence.example" not in url for url in device.requested_urls)
+    bettor.expect_balance(2000)
+
+
 def test_e2e_as05_no_csp_violation_on_any_page(phones: Callable[..., Phone], api: Api) -> None:
     phone = phones()
     documents: list[Response] = []
