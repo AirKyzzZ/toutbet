@@ -133,6 +133,36 @@ def test_payout_is_created_once_per_idempotency_key(mock: TestClient) -> None:
     assert mock.get("/v1/payouts/wd-1").status_code == 401
 
 
+def test_latency_knob_answers_late_after_recording_the_payout() -> None:
+    now = [0.0]
+    settings = MockPspSettings(
+        _env_file=None,
+        PSP_API_KEY=API_KEY,
+        PSP_WEBHOOK_SECRET=WEBHOOK_SECRET,
+        MOCK_PSP_LATENCY_MS=300,
+        MOCK_PSP_LATENCY_DURATION_S=60,
+    )
+    slow = TestClient(create_mock_app(settings, clock=lambda: now[0]))
+    auth = {"Authorization": f"Bearer {API_KEY}"}
+
+    started = time.perf_counter()
+    paid = _payout(slow, "wd-1")
+    slow_answer = time.perf_counter() - started
+    page_started = time.perf_counter()
+    slow.get("/assets/mock.css")
+    page_answer = time.perf_counter() - page_started
+    now[0] = 61.0
+    started = time.perf_counter()
+    found = slow.get("/v1/payouts/wd-1", headers=auth)
+    recovered_answer = time.perf_counter() - started
+
+    assert paid.status_code == 200
+    assert found.json() == {"payout_id": paid.json()["payout_id"], "status": "paid"}
+    assert slow_answer >= 0.3
+    assert page_answer < 0.3
+    assert recovered_answer < 0.3
+
+
 def test_toutbet_never_imports_mock_psp() -> None:
     source = Path(__file__).parents[2] / "src" / "toutbet"
 

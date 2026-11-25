@@ -21,3 +21,7 @@ class MockPspSettings(BaseSettings):
     refuse_payouts: bool = Field(
         default=False, validation_alias=AliasChoices("MOCK_PSP_REFUSE_PAYOUTS")
     )
+    latency_ms: int = Field(default=0, ge=0, validation_alias=AliasChoices("MOCK_PSP_LATENCY_MS"))
+    latency_duration_s: float = Field(
+        default=0, ge=0, validation_alias=AliasChoices("MOCK_PSP_LATENCY_DURATION_S")
+    )
