@@ -26,7 +26,7 @@ Each command in its own terminal, from the repository root:
 ```sh
 uv run toutbet-admin init-db
 uv run mock-psp
-uv run uvicorn --factory toutbet.main:build_app --port 8000 --no-server-header --no-access-log
+uv run uvicorn --factory toutbet.main:build_app --port 8000 --no-server-header --no-access-log --no-proxy-headers
 uv run toutbet-worker
 ```
 
