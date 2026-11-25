@@ -1,4 +1,5 @@
 import io
+import json
 import uuid
 
 from fastapi.testclient import TestClient
@@ -110,3 +111,30 @@ def test_us02_5_psp_timeout_marks_deposit_failed(api: Api, client: TestClient) -
         "/api/deposits", json={"amount_cents": 2000}, headers=idempotency_headers(player, key)
     )
     assert retry.status_code == 201
+
+
+def test_us02_6_refused_payment_logs_failure_with_user(
+    api: Api, client: TestClient, captured_logs: io.StringIO
+) -> None:
+    player = api.signup()
+    deposit_id = api.start_deposit(player, 2000).json()["deposit_id"]
+    refused = {**api.payment_event(deposit_id), "type": "payment.failed"}
+
+    assert api.signed_webhook(refused).status_code == 200
+    assert api.signed_webhook({**refused, "event_id": f"evt_{uuid.uuid4().hex}"}).status_code == 200
+
+    events = [json.loads(line) for line in captured_logs.getvalue().splitlines()]
+    failures = [e for e in events if e["event"] == "money.deposit_failed"]
+    assert failures == [
+        {
+            **failures[0],
+            "user_id": player.id,
+            "deposit_id": deposit_id,
+            "reason": "psp_refused",
+            "level": "warning",
+        }
+    ]
+    assert any(e["event"] == "psp.unmatched_payment" for e in events)
+    with api.db() as db:
+        assert db.scalars(select(Deposit.status)).all() == ["failed"]
+    assert api.balance(player) == 0

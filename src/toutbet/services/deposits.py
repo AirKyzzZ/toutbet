@@ -99,9 +99,20 @@ def credit_deposit(db: Session, event: PaymentEvent, now: datetime, request_id: 
 
 
 def mark_payment_failed(db: Session, event: PaymentEvent) -> None:
-    db.execute(
+    failed = db.execute(
         update(Deposit)
         .where(Deposit.psp_session_id == event.data.session_id, Deposit.status == DEPOSIT_PENDING)
         .values(status=DEPOSIT_FAILED)
+        .returning(Deposit.id, Deposit.user_id)
         .execution_options(synchronize_session=False)
+    ).one_or_none()
+    if failed is None:
+        log_event("psp.unmatched_payment", level=logging.WARNING, event_id=event.event_id)
+        return
+    log_event(
+        "money.deposit_failed",
+        level=logging.WARNING,
+        user_id=str(failed.user_id),
+        deposit_id=str(failed.id),
+        reason="psp_refused",
     )
