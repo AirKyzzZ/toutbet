@@ -594,16 +594,18 @@ Le filtre de masquage remplace par `***` la valeur de toute clé contenant `pass
 |---|---|---|
 | `auth.login_failed` | échec de connexion | plus de 20 par minute depuis une IP |
 | `auth.account_locked` | verrouillage d'un compte | toute occurrence sur un modérateur |
-| `auth.token_rejected` | jeton invalide, expiré ou révoqué | pic soudain |
+| `auth.token_rejected` | jeton invalide, expiré ou révoqué ; `reason=bad_signature` pour une signature forgée (atelier 4) | pic soudain, toute signature forgée |
 | `authz.denied` | 403, ou 404 sur une ressource existante non visible | plus de 30 par minute pour un utilisateur (balayage d'IDOR) |
 | `rate_limit.exceeded` | réponse 429 | hausse combinée avec la CPU |
 | `psp.webhook_rejected` | signature ou horodatage invalide | 3 en 5 minutes, critique |
 | `psp.amount_mismatch` | montant ou devise différents du dépôt | toute occurrence, critique |
 | `psp.timeout` | PSP hors délai | plus de 5 % des appels |
 | `money.stake_rejected` | mise refusée, avec la raison | rafale d'`INSUFFICIENT_FUNDS` pour un même utilisateur |
+| `money.deposit_failed` | paiement refusé par le PSP (atelier 4) | 3 de suite ou 5 par heure pour un même utilisateur |
 | `money.withdrawal_failed` | virement refusé | toute occurrence |
 | `bet.disputed` | pari en litige | file de litiges qui grossit |
 | `moderation.decision` | décision rendue | décision sur un pari où le modérateur a un lien |
+| `admin.access_revoked` | `toutbet-admin revoke-access` (atelier 4) | toute occurrence, à rapprocher d'un départ |
 | `ledger.head` | toutes les 5 minutes | absent depuis plus de 10 minutes |
 | `ledger.verify_failed` | anomalie détectée | toute occurrence, critique |
 | `error.unhandled` | erreur 500 | plus de 1 % des requêtes |

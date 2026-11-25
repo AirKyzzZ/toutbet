@@ -28,7 +28,7 @@ Vient de Semgrep Supply Chain, encore à faire. Le dépôt est déjà scanné pa
 | Unit, abuse and security tests | `uv run --locked pytest` sur SQLite | 267 passés, 1 ignoré (le test PostgreSQL) |
 | E2E Playwright | `uv run --locked --group e2e pytest tests/e2e` : Chromium headless installé avec ses bibliothèques système, mis en cache selon la version de Playwright de `uv.lock`. En cas d'échec, traces Playwright, captures d'écran et logs serveur publiés comme artefact (7 jours) | 33 passés, environ 35 s |
 | Tests on PostgreSQL | service `postgres:17` figé par digest, rôle `toutbet_app` créé par `deploy/postgres/create-app-role.sh` (le script du compose, lancé avec `docker exec`), suite complète avec `DATABASE_URL` sur le rôle restreint et `DATABASE_ADMIN_URL` sur le propriétaire. Une dernière étape échoue si `test_pg_grants.py` est ignoré au lieu de passer | 268 passés, dont `test_pg_app_role_cannot_update_ledger` |
-| Semgrep OSS | conteneur `semgrep/semgrep:1.186.0` figé par digest, `semgrep --test` sur nos 3 règles, puis `semgrep scan --error` avec les 7 packs de l'atelier 2, `p/github-actions` et `.semgrep/toutbet.yml`, sans jeton | 3/3 tests de règles, 542 règles, 0 alerte |
+| Semgrep OSS | conteneur `semgrep/semgrep:1.186.0` figé par digest, `semgrep --test` sur nos règles (3 à l'atelier 3, 4 depuis l'atelier 4), puis `semgrep scan --error` avec les 7 packs de l'atelier 2, `p/github-actions` et `.semgrep/toutbet.yml`, sans jeton | 3/3 tests de règles, 542 règles, 0 alerte |
 | Secret scan | gitleaks 8.30.1 (image figée par digest) sur tout l'historique (`fetch-depth: 0`), `--redact` | 0 fuite, après avoir listé 3 faux positifs |
 
 Durcissement du workflow :

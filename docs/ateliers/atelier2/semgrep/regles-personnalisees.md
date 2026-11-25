@@ -73,3 +73,5 @@ Attention, `semgrep --test .semgrep/` ne teste rien : Semgrep ignore les fichier
 
 - `jwt.decode` sans `algorithms`, `audience` ou `issuer` : utile, mais déjà couvert en partie par les règles JWT publiques et par `test_as01_tampered_token_rejected`.
 - `log_event` appelé avec un argument `password`, `token` ou `secret` : le filtre de masquage remplace déjà ces clés par `***`, la règle n'aurait rien ajouté de concret.
+
+Depuis l'atelier 4, une quatrième règle, `toutbet-sensitive-data-in-logs`, interdit de passer un secret ou une f-string à un appel de log. Voir `docs/ateliers/atelier4/supervision.md`.

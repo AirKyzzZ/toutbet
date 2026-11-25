@@ -146,7 +146,7 @@ Même grille STRIDE que `specs/threats.md`. Le statut dit si le contrôle princi
 | E, Élévation de privilèges | 3 |
 | Total | 18 |
 
-Un point qui ne mérite pas sa propre ligne : les packs publics `p/...` sont téléchargés depuis le registre Semgrep à chaque run, sans version. Une règle retirée ferait baisser la détection sans bruit. Le moteur est figé par digest et nos trois règles sont versionnées avec leurs tests, ce qui suffit pour le MVP.
+Un point qui ne mérite pas sa propre ligne : les packs publics `p/...` sont téléchargés depuis le registre Semgrep à chaque run, sans version. Une règle retirée ferait baisser la détection sans bruit. Le moteur est figé par digest et nos règles (quatre depuis l'atelier 4) sont versionnées avec leurs tests, ce qui suffit pour le MVP.
 
 ## 4. Points de contrôle
 
@@ -159,7 +159,7 @@ Un point qui ne mérite pas sa propre ligne : les packs publics `p/...` sont té
 | CP5 | workflow CI | Actions par SHA, `permissions: contents: read`, `persist-credentials: false`, pas de `pull_request_target`, timeouts, `concurrency` | En place |
 | CP6 | images | Digest sha256 dans le `Dockerfile`, le compose et la CI | En place |
 | CP7 | mises à jour | Dependabot hebdomadaire, groupé, 7 jours d'attente, passage par PR et CI | En place (actif au premier push) |
-| CP8 | SAST | Semgrep OSS : 7 packs de l'atelier 2, `p/github-actions` et nos 3 règles, échec à la première alerte | En place |
+| CP8 | SAST | Semgrep OSS : 7 packs de l'atelier 2, `p/github-actions` et nos règles maison, échec à la première alerte | En place |
 | CP9 | secrets dans Git | gitleaks sur tout l'historique, `--redact` | En place |
 | CP10 | tests | Unitaires, abus, E2E Playwright, suite complète sur PostgreSQL avec le rôle restreint | En place |
 | CP11 | SCA et SBOM | Semgrep Supply Chain | Étape 2, à faire |
