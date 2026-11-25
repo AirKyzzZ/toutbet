@@ -1,6 +1,9 @@
 from datetime import timedelta
 
+from sqlalchemy import select
+
 from support import Api, proposed_bet
+from toutbet.models import Contest
 
 
 def test_us10_1_one_contest_per_staking_participant_while_window_open(api: Api) -> None:
@@ -15,6 +18,19 @@ def test_us10_1_one_contest_per_staking_participant_while_window_open(api: Api) 
     assert first.json()["my_contested"] is True
     assert second.status_code == 409
     assert too_short.status_code == 422
+
+
+def test_us10_1_reason_counts_only_non_whitespace_characters(api: Api) -> None:
+    scenario = proposed_bet(api, [("alice", "OUI", 9500), ("bob", "NON", 500)], outcome="OUI")
+    bob = scenario.players["bob"]
+
+    blank = api.contest(bob, scenario.bet["id"], reason=" " * 20)
+    padded = api.contest(bob, scenario.bet["id"], reason="\t non   faux \n" + " " * 10)
+
+    assert blank.status_code == padded.status_code == 422
+    with api.db() as db:
+        assert db.scalars(select(Contest)).all() == []
+    assert api.contest(bob, scenario.bet["id"], reason="  Matis a calé.  ").status_code == 201
 
 
 def test_us10_2_contests_reaching_10_percent_of_stakes_dispute_the_bet(api: Api) -> None:

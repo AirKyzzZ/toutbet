@@ -60,6 +60,24 @@ def test_as14_decision_requires_justification(api: Api) -> None:
     assert api.bet(scenario.bookie, scenario.bet["id"])["status"] == "disputed"
 
 
+def test_as14_whitespace_padded_justification_rejected(api: Api) -> None:
+    scenario = proposed_bet(api, [("alice", "OUI", 4000), ("bob", "NON", 4000)], outcome="NON")
+    api.contest(scenario.players["alice"], scenario.bet["id"])
+    moderator = api.moderator()
+
+    blank = api.decide(moderator, scenario.bet["id"], "OUI", justification=" " * 25)
+    padded = api.decide(moderator, scenario.bet["id"], "OUI", justification="  ok\t\n" + " " * 20)
+    short = api.decide(moderator, scenario.bet["id"], "OUI", justification="  vu  la  vidéo  ok  ")
+
+    assert blank.status_code == padded.status_code == short.status_code == 422
+    assert api.bet(scenario.bookie, scenario.bet["id"])["status"] == "disputed"
+    with api.db() as db:
+        decisions = db.scalars(
+            select(AuditEvent).where(AuditEvent.event_type == "moderation.decision")
+        ).all()
+    assert decisions == []
+
+
 def test_as14_decision_recorded_and_visible_to_participants(api: Api) -> None:
     scenario = proposed_bet(api, [("alice", "OUI", 4000), ("bob", "NON", 4000)], outcome="NON")
     api.contest(scenario.players["alice"], scenario.bet["id"])

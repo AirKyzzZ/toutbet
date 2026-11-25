@@ -5,7 +5,7 @@ from typing import Annotated
 from pydantic import BaseModel, StringConstraints
 
 from toutbet.schemas.bets import OutcomeTotals
-from toutbet.schemas.common import RequestModel, ResultOutcome
+from toutbet.schemas.common import RequestModel, ResultOutcome, min_visible_chars
 
 
 class ContestView(BaseModel):
@@ -35,7 +35,7 @@ class DisputePage(BaseModel):
 
 class DecisionCreate(RequestModel):
     outcome: ResultOutcome
-    justification: Annotated[str, StringConstraints(min_length=20, max_length=1000)]
+    justification: Annotated[str, StringConstraints(max_length=1000), min_visible_chars(20)]
 
 
 class DecisionResult(BaseModel):

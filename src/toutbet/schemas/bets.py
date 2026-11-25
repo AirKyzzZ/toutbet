@@ -4,7 +4,13 @@ from typing import Annotated
 
 from pydantic import AwareDatetime, BaseModel, Field, StrictInt, StringConstraints
 
-from toutbet.schemas.common import Outcome, RequestModel, ResultOutcome, StakeAmountCents
+from toutbet.schemas.common import (
+    Outcome,
+    RequestModel,
+    ResultOutcome,
+    StakeAmountCents,
+    min_visible_chars,
+)
 
 
 class BetCreate(RequestModel):
@@ -91,7 +97,7 @@ class ResultProposal(RequestModel):
 
 
 class ContestCreate(RequestModel):
-    reason: Annotated[str, StringConstraints(min_length=10, max_length=500)]
+    reason: Annotated[str, StringConstraints(max_length=500), min_visible_chars(10)]
 
 
 class InvitationCreated(BaseModel):
