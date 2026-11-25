@@ -1,0 +1,49 @@
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+    groups:
+      python:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+    groups:
+      dockerfile:
+        patterns: ["*"]
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: build
+    groups:
+      compose:
+        patterns: ["*"]
