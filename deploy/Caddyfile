@@ -21,5 +21,10 @@ http://:8080 {
 	}
 	header -Server
 	header -Via
-	reverse_proxy app:8000
+	handle /api/webhooks/psp {
+		reverse_proxy app:8000
+	}
+	handle {
+		respond 404
+	}
 }
