@@ -2,13 +2,14 @@ import uuid
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AwareDatetime, BaseModel, Field, StrictInt, StringConstraints
+from pydantic import BaseModel, Field, StrictInt, StringConstraints
 
 from toutbet.schemas.common import (
     Outcome,
     RequestModel,
     ResultOutcome,
     StakeAmountCents,
+    UtcDatetime,
     min_visible_chars,
 )
 
@@ -16,8 +17,8 @@ from toutbet.schemas.common import (
 class BetCreate(RequestModel):
     title: Annotated[str, StringConstraints(min_length=5, max_length=140)]
     description: Annotated[str, StringConstraints(max_length=1000)] | None = None
-    event_starts_at: AwareDatetime
-    closes_at: AwareDatetime
+    event_starts_at: UtcDatetime
+    closes_at: UtcDatetime
     bookie_commission_bps: Annotated[StrictInt, Field(ge=0, le=1000)]
     min_stake_cents: Annotated[StrictInt, Field(ge=100, le=50_000)] | None = None
 

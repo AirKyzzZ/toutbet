@@ -1,6 +1,7 @@
+from datetime import UTC, datetime
 from typing import Annotated, Literal
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, StrictInt
+from pydantic import AfterValidator, AwareDatetime, BaseModel, ConfigDict, Field, StrictInt
 
 Outcome = Literal["OUI", "NON"]
 ResultOutcome = Literal["OUI", "NON", "ANNULE"]
@@ -17,6 +18,16 @@ def min_visible_chars(minimum: int) -> AfterValidator:
         return value
 
     return AfterValidator(check)
+
+
+def to_utc(value: datetime) -> datetime:
+    try:
+        return value.astimezone(UTC)
+    except OverflowError:
+        raise ValueError("must stay within years 1 to 9999 once converted to UTC") from None
+
+
+UtcDatetime = Annotated[AwareDatetime, AfterValidator(to_utc)]
 
 
 class RequestModel(BaseModel):

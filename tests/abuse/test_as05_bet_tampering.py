@@ -21,6 +21,25 @@ def test_as05_commission_above_cap_rejected(api: Api, client: TestClient) -> Non
     assert _no_bet_created(api)
 
 
+@pytest.mark.parametrize("field", ["closes_at", "event_starts_at"])
+@pytest.mark.parametrize(
+    "moment",
+    ["9999-12-31T23:59:59-12:00", "0001-01-01T00:00:00+14:00", "9999-12-31T23:59:59-23:59"],
+)
+def test_as05_dates_outside_utc_range_rejected_without_server_error(
+    api: Api, client: TestClient, field: str, moment: str
+) -> None:
+    bookie = api.signup()
+
+    response = client.post(
+        "/api/bets", json=api.bet_body(**{field: moment}), headers=bookie.headers
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert _no_bet_created(api)
+
+
 @pytest.mark.parametrize(
     "field",
     ["bookie_id", "status", "platform_commission_bps", "proposed_outcome", "role"],
