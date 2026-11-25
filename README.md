@@ -19,6 +19,8 @@ uv run toutbet-admin gen-secrets
 
 Paste the four printed lines (`JWT_SECRET`, `RECEIPT_SIGNING_KEY`, `PSP_WEBHOOK_SECRET`, `PSP_API_KEY`) over the empty placeholders in `.env`. The application refuses to start while a secret is missing or shorter than 32 bytes, and the error names the variable without printing its value. `.env` is ignored by Git and by the Docker build context.
 
+In a deployment the same variables can be mounted as files in `/run/secrets`, one file per variable (`/run/secrets/JWT_SECRET`, `/run/secrets/DATABASE_URL`, ...). A file there wins over an environment variable of the same name. The strategy is in `docs/ateliers/atelier3/secrets.md`.
+
 ## Running locally
 
 Each command in its own terminal, from the repository root:
@@ -63,6 +65,8 @@ uv run ruff check
 uv run ruff format --check
 uv run mypy src
 ```
+
+GitHub Actions runs these checks on every push and pull request to `main`, plus the E2E suite, the PostgreSQL run below, Semgrep and gitleaks (`.github/workflows/ci.yml`).
 
 The suite runs offline on a temporary SQLite file per test. To run the same suite on PostgreSQL, start a disposable server that has the restricted application role, then point `DATABASE_URL` at that role and `DATABASE_ADMIN_URL` at the owner (the owner creates and cleans the schema, the tests run as the application role, and `test_pg_app_role_cannot_update_ledger` is no longer skipped):
 
