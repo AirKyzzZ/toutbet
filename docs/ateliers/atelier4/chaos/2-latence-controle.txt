@@ -1,0 +1,8 @@
+withdrawals by status: {'sent': 24}
+deposits by status: {'succeeded': 12, 'failed': 48, 'pending': 24}
+ledger entries by type: {'stake': 6, 'withdrawal': 24, 'deposit': 12}
+mock PSP payouts: 24 for 24 references
+references paid more than once: []
+withdrawals marked sent without a PSP payout: []
+withdrawal debits: 24 for 24 withdrawals
+idempotency keys debited more than once: []

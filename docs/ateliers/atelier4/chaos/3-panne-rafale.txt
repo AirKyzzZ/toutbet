@@ -1,0 +1,9 @@
+bad_token   n=  15 p50=     2.0 ms p95=     2.3 ms max=     2.5 ms  {'401 UNAUTHENTICATED': 15}
+bad_webhook n=  15 p50=     1.9 ms p95=     2.4 ms max=     2.4 ms  {'400 INVALID_SIGNATURE': 15}
+bet_view    n=  15 p50=    12.7 ms p95=    15.8 ms max=    22.3 ms  {'200': 15}
+deposit     n=  12 p50=   206.8 ms p95=   217.4 ms max=   218.0 ms  {'503 PSP_UNAVAILABLE': 12}
+healthz     n=  15 p50=     2.5 ms p95=     5.4 ms max=     5.5 ms  {'200': 15}
+login       n=  12 p50=   220.2 ms p95=   230.2 ms max=   230.6 ms  {'200': 12}
+replay      n=   1 p50=    26.9 ms p95=    26.9 ms max=    26.9 ms  {'409 IDEMPOTENCY_IN_PROGRESS': 1}
+wallet      n=  15 p50=    12.1 ms p95=    18.7 ms max=    19.3 ms  {'200': 15}
+withdrawal  n=  12 p50=   218.6 ms p95=   227.4 ms max=   229.9 ms  {'503 WITHDRAWAL_PENDING': 12}

@@ -1,0 +1,10 @@
+withdrawals by status: {'sent': 36}
+deposits by status: {'succeeded': 12, 'failed': 60, 'pending': 24}
+ledger entries by type: {'stake': 6, 'withdrawal': 36, 'deposit': 12}
+mock PSP payouts: 36 for 36 references
+references paid more than once: []
+withdrawals marked sent without a PSP payout: []
+withdrawal debits: 36 for 36 withdrawals
+idempotency keys debited more than once: []
+ledger and audit chains verified
+check-alerts exit=1

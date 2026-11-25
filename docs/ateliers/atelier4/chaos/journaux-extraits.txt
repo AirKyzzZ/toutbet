@@ -1,0 +1,19 @@
+# Suivi d'un retrait pendant la latence (5409f466-c058-4e14-b12a-4740028df017)
+## API : appel PSP coupé à 5 s, retrait laissé pending
+{"ts": "2026-11-25T15:16:42.596+00:00", "level": "warning", "event": "money.withdrawal_unconfirmed", "logger": "toutbet", "request_id": "552aea6ca03f42dd9905dc0bf9290972", "user_id": "60172c7f-0b6c-4f47-8932-29f17817f823", "withdrawal_id": "5409f466-c058-4e14-b12a-4740028df017", "cause": "ReadTimeout"}
+## PSP simulé : un seul virement enregistré pour cette référence, sur les trois phases
+{"ts": "2026-11-25T15:16:37.596+00:00", "level": "info", "event": "mock_psp.payout", "logger": "toutbet", "request_id": null, "reference": "5409f466-c058-4e14-b12a-4740028df017", "amount_cents": 1000, "status": "paid"}
+## Worker : deux tours pendant la latence (5 s par retrait, 12 retraits = 60 s par tour), puis réconcilié
+{"ts": "2026-11-25T15:21:52.270+00:00", "level": "warning", "event": "money.withdrawal_unconfirmed", "logger": "toutbet", "request_id": null, "withdrawal_id": "5409f466-c058-4e14-b12a-4740028df017", "cause": "ReadTimeout"}
+{"ts": "2026-11-25T15:23:22.415+00:00", "level": "warning", "event": "money.withdrawal_unconfirmed", "logger": "toutbet", "request_id": null, "withdrawal_id": "5409f466-c058-4e14-b12a-4740028df017", "cause": "ReadTimeout"}
+{"ts": "2026-11-25T15:24:47.519+00:00", "level": "info", "event": "log", "logger": "httpx", "request_id": null, "message": "HTTP Request: GET http://127.0.0.1:8301/v1/payouts/5409f466-c058-4e14-b12a-4740028df017 \"HTTP/1.1 200 OK\""}
+{"ts": "2026-11-25T15:24:47.543+00:00", "level": "info", "event": "money.withdrawal_reconciled", "logger": "toutbet", "request_id": null, "withdrawal_id": "5409f466-c058-4e14-b12a-4740028df017", "status": "sent"}
+## Tours du worker autour de la fin de la latence (15:24:26)
+{"ts": "2026-11-25T15:20:47.179+00:00", "level": "info", "event": "worker.tick", "logger": "toutbet", "request_id": null, "closed": 0, "escalated": 0, "settled": 0, "reconciled": 0}
+{"ts": "2026-11-25T15:21:17.214+00:00", "level": "info", "event": "worker.tick", "logger": "toutbet", "request_id": null, "closed": 0, "escalated": 0, "settled": 0, "reconciled": 0}
+{"ts": "2026-11-25T15:22:47.369+00:00", "level": "info", "event": "worker.tick", "logger": "toutbet", "request_id": null, "closed": 0, "escalated": 0, "settled": 0, "reconciled": 0}
+{"ts": "2026-11-25T15:24:17.481+00:00", "level": "info", "event": "worker.tick", "logger": "toutbet", "request_id": null, "closed": 0, "escalated": 0, "settled": 0, "reconciled": 0}
+{"ts": "2026-11-25T15:24:47.591+00:00", "level": "info", "event": "worker.tick", "logger": "toutbet", "request_id": null, "closed": 0, "escalated": 0, "settled": 0, "reconciled": 12}
+{"ts": "2026-11-25T15:25:17.619+00:00", "level": "info", "event": "worker.tick", "logger": "toutbet", "request_id": null, "closed": 0, "escalated": 0, "settled": 0, "reconciled": 0}
+## Alertes levées par toutbet-admin check-alerts sur le log de l'API (faux webhooks envoyés par la sonde pendant la panne)
+psp.webhook_rejected : 15
