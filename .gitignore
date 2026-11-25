@@ -16,3 +16,4 @@ htmlcov/
 *.db-shm
 *.db-wal
 caddy-root.crt
+e2e-artifacts/
