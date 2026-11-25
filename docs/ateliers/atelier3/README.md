@@ -8,7 +8,7 @@ Le code est validé depuis l'atelier 2. Ici on regarde ce qui peut l'altérer en
 |---|---|---|
 | 1 | [`supply-chain.md`](supply-chain.md) | schéma annoté du clavier à la production, frontières `TB-SC1` à `TB-SC7`, 18 menaces `T-SC01` à `T-SC18`, points de contrôle, serveurs MCP |
 | 1 | [`.github/dependabot.yml`](../../../.github/dependabot.yml) | mises à jour hebdomadaires groupées pour uv, les actions, le `Dockerfile` et le compose |
-| 2 | à faire | voir plus bas |
+| 2 | [`sca.md`](sca.md) | vulnérabilités et priorisation, licences et copyleft, SBOM |
 | 3 | [`.github/workflows/ci.yml`](../../../.github/workflows/ci.yml) | pipeline d'intégration continue |
 | 3 | [`secrets.md`](secrets.md) | inventaire, définition par le pipeline de déploiement, récupération par l'application, impact d'une fuite |
 | 3 | [`src/toutbet/config.py`](../../../src/toutbet/config.py), [`tests/unit/test_settings.py`](../../../tests/unit/test_settings.py) | lecture des secrets montés en fichiers dans `/run/secrets` |
@@ -16,7 +16,7 @@ Le code est validé depuis l'atelier 2. Ici on regarde ce qui peut l'altérer en
 
 ## Étape 2, SBOM et SCA
 
-Vient de Semgrep Supply Chain, encore à faire. Le dépôt est déjà scanné par `semgrep ci` depuis l'atelier 2. Il reste à relever dans l'onglet Supply Chain les dépendances vulnérables ou obsolètes classées par priorité (EPSS), la liste des licences en signalant le copyleft de type GPL, et à exporter le SBOM pour l'annexe.
+`semgrep ci --supply-chain` sur `uv.lock` : 80 dépendances, 0 vulnérabilité, 0 paquet malveillant, aucune version en retard. Aucune licence n'oblige à ouvrir notre code : `psycopg` est en LGPL et importé sans modification, et le seul paquet GPL (`text-unidecode`, en double licence avec l'Artistic License) ne sert qu'aux tests E2E. Détail et méthode de priorisation (atteignabilité, EPSS, KEV) dans [`sca.md`](sca.md).
 
 ## Étape 3, pipeline CI
 
