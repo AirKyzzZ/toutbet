@@ -11,6 +11,7 @@ Les prompts sont versionnés ici avec les specs pour que la génération du code
 | P3 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 2 étapes 1 et 2 : règles Semgrep, DAST, fuzzing, IAST | code, `specs/threats.md`, `docs/reviews/r1.md`, énoncé de l'atelier 2 |
 | P4 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 2 étape 3 : E2E Playwright, Locust, solde négatif | code, `specs/requirements.md`, `specs/design.md`, `docs/reviews/r1.md`, énoncé de l'atelier 2 |
 | P5 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 3 étapes 1 et 3 : modèle de la supply chain, pipeline CI, stratégie des secrets | code, `specs/design.md`, `specs/threats.md`, `docs/prompts.md`, énoncé de l'atelier 3 |
+| P6 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 4 : droits, alertes, chaos | code, `specs/`, `docs/ateliers/atelier2/` et `atelier3/`, énoncé de l'atelier 4 |
 
 ## P0 : rédaction des specs
 
@@ -427,6 +428,107 @@ Write `docs/ateliers/atelier3/README.md` in French. Index the files. Leave a sec
 - What is implemented versus only described.
 - actionlint output.
 - What you could not validate locally, and anything the user must do on GitHub.
+````
+
+## P6 : atelier 4, identités, supervision et chaos
+
+Prompt envoyé tel quel, chemins absolus raccourcis :
+
+````text
+Student DevSecOps course (teacher Sylvain Labasse, EPSI), group Maxime Mansiet + Simon Godard. Repo: `.`, public at https://github.com/AirKyzzZ/toutbet. It is a FastAPI MVP called "ToutBet'", P2P betting with escrow.
+- Read first: `README.md`, `specs/STEERING.md`, `specs/design.md`, `specs/threats.md`, `docs/ateliers/atelier3/` (supply-chain zones and threats, secrets), `.github/workflows/ci.yml`, `src/toutbet/observability.py`, and the A2 load and DAST READMEs under `docs/ateliers/atelier2/`.
+- Brief: `pdftotext -layout ../atelier4.pdf -`. Its "Remise" asks for:
+  - the rights table and a deployment approval workflow diagram;
+  - the alert rules list (name, condition, severity);
+  - one chaos experiment sheet: Hypothèse → Expérience → Résultat attendu → Plan de repli.
+- Course digest: `(résumé des diapos du cours)`, section "Suivi (A4)". Use its vocabulary where it fits: JIT, SoD codeur ≠ déployeur, comptes fantômes, attestation every 3 months, steady-state hypothesis, blast radius, kill switch, Game Day.
+
+You own atelier 4. Nobody else works in the repo right now. Write all prose in French under `docs/ateliers/atelier4/`, with a `README.md` index.
+
+## Étape 1, identities and privileges (`iam.md`)
+- **Privilege matrix.** Columns are at least 4 roles: Développeur, Lead dev / Security Champion, Ops / Release manager, Agent IA (Claude Code), plus Auditeur or PO if useful. Rows are actions grouped by each zone of the A3 supply-chain model: postes, agent IA et contexte, GitHub dépôt, CI, registres, prod, secrets, base de données, PSP. Use cell values like ✅ / JIT / ❌ / lecture.
+  - Enforce SoD: the person who writes code is not the one who deploys.
+  - The AI agent has no prod or secret access, and its pushes go through PR review.
+  - Map each important row to the `T-SC*` threat it mitigates.
+- **Deployment approval workflow.** A Mermaid diagram from PR to prod: CI checks → review by someone other than the author → merge → build, then sign/attest (planned) → staging → GitHub Environment `production` with required reviewers (the release manager, not the author) → deploy, with JIT credentials via OIDC → post-deploy checks → rollback path. Mark what exists today and what is planned.
+- **Revocation checklists.** A 5-minute checklist per role, ordered by priority, with concrete commands and screens: GitHub org removal, `gh` commands, revoking PATs and SSH keys and deploy keys, rotating any secret the person could read, Semgrep/PSP/registry/cloud seats, the Anthropic API key for the AI agent, active JWT sessions. Our logout and server-side revocation exist; check `src/` to see what is there.
+- The AI agent's "departure" is revoking its API key and MCP tokens and removing its CLAUDE.md permissions.
+- End with the quarterly access attestation and the HR system as source of truth, in 3 lines.
+
+## Étape 2, supervision and logs (`supervision.md`)
+- **Alert rules table:** name, condition (precise thresholds and window), severity (critique / haute / moyenne), source event, response.
+  - Base the rules on the **real** event names the app logs. Grep `log_event` and the logger calls in `src/`, and list the ones you use.
+  - Include the brief's example (3 failed payments in a row on the same account) if the PSP flow emits something usable. If an event the brief needs does not exist, add it to the code with a test, small and in the existing style.
+  - Cover:
+    - brute force and credential stuffing, i.e. a 403/401/429 surge plus a CPU spike as in the course;
+    - an invalid PSP webhook signature;
+    - `verify-ledger` failing;
+    - withdrawals stuck as unconfirmed;
+    - balance anomalies;
+    - admin or moderator actions;
+    - JWT signature failures;
+    - a burst of 5xx;
+    - the rate limiter firing;
+    - CI secret scan or Semgrep failing on main;
+    - Dependabot critical issues;
+    - a deploy outside the workflow.
+- **Optional, beyond the brief.** If it stays small: a tiny script in `scripts/` or a `toutbet-admin` subcommand that reads the JSON logs and evaluates 3 or 4 of these rules, with tests. Skip it if it grows. Do not add dependencies.
+- **Logs to correlate.** Base this on one precise scenario, e.g. a stolen moderator token used to settle a bet and drain escrow. List application logs (with `request_id` and `user_id`), auth logs, ledger and receipts, Caddy access logs, PostgreSQL logs, PSP webhook logs, GitHub audit log, CI logs. Show the order you'd follow, and what joins the logs: request_id, user_id, IP, timestamps, receipt hash.
+- **Cards and passwords out of logs (RGPD/PCI-DSS).** Show what is already in place, with file paths and test names:
+  - card data never reaches us, because the PSP hosts the payment page (SAQ A scope);
+  - an allowlist-structured logger and redaction (find the redaction code and `tests/unit/test_redaction.py`);
+  - `hide_parameters` on the SQL engines;
+  - the uvicorn access log off;
+  - the abuse tests asserting that no secret is logged.
+  Then add a 4th custom Semgrep rule in `.semgrep/toutbet.yml`, with `semgrep --test` fixtures, that forbids passing password/token/secret/card-like keyword arguments or f-strings to `log_event`/logger calls. Make sure it runs in CI, since the Semgrep job already scans `.semgrep/`. Finish with retention and access rules for logs.
+
+## Étape 3, chaos plan (`chaos.md`)
+- **3 critical services to disturb:**
+  - the PSP: 10 s latency, then down;
+  - PostgreSQL: down or slow, connection pool exhaustion;
+  - the worker: stopped, so no reconciliation and no settlement.
+  For each, state the expected impact, the security angle (does it fail closed?) and the blast radius steps.
+- **Bet creation down: keep the app usable.** Propose a degraded mode: reads, wallet and existing bets still work, and creation answers 503 with a clear message and a banner in the front.
+  - If it is small, implement a kill switch: a setting such as `BET_CREATION_ENABLED`, default true, that makes `POST /api/bets` answer 503 with a clear French message, while the front shows a banner and hides the create button. Add tests, including one E2E test if it fits the existing suite. Keep it minimal.
+- **Stop condition.** Give the precise conditions that halt the experiment immediately:
+  - any `verify-ledger` failure;
+  - any money moved twice;
+  - 5xx above X % for Y s;
+  - loss of a percentage of transactions;
+  - auth fail-open.
+  Name who pulls the kill switch and how.
+- **The experiment sheet** (the deliverable): Hypothèse (steady state, using the SLOs in `STEERING.md`) → Expérience → Résultat attendu → Plan de repli. Do it for PSP latency of 10 s on withdrawals and deposits.
+- **Then actually run it once** on a local stack and record what happened in a "Résultat observé" section.
+  - Add latency with a dev-only env knob on the mock PSP if one doesn't exist, or with toxiproxy in docker.
+  - Check withdrawals stay pending, there is no double payout, the worker reconciles after recovery, `verify-ledger` stays OK, and the API threads don't starve. A2 flagged that sync PSP calls can take up to 7 s, so measure that.
+  - Use ports 8300/8301. Docker on this Mac may have no free subnet, so prefer running uvicorn and the mock PSP as processes, and PostgreSQL only if needed.
+  - Don't prune docker networks, volumes or images you didn't create.
+
+## Rules
+- Code: no comments except a hidden constraint or a non-obvious invariant. Conventional commit subjects in English, lowercase after the colon, subject only (a hook adds the trailers). Small atomic commits.
+- Stage only your paths (never `git add -A`). Don't push. Don't touch GitHub settings.
+- These must pass: `uv run pytest`, `uv run ruff check .`, `uv run ruff format --check .`, `uv run mypy src`, `semgrep --test .semgrep/` (via uvx), and `uv run --group e2e pytest tests/e2e` if you touched the front or E2E tests.
+- No new dependencies.
+- French prose: plain, short, human, like two students. No em dashes, no marketing words, no filler. Tables over paragraphs where it's a list.
+- Clean up every process and container you start.
+
+## Report back (under 350 words)
+- Commit list.
+- What is implemented versus only written down.
+- The chaos run result in 3 lines.
+- Test counts.
+- Anything inconsistent you found in earlier docs.
+````
+
+En cours de route, la revue de sécurité automatique d'un commit a signalé qu'un dépôt réussi remettait à zéro le compteur de paiements refusés. Message envoyé à l'agent :
+
+````text
+Review note on src/toutbet/alerts.py: the refused-payment rule can be evaded, please fix before you finish.
+Right now `money.deposit_credited` calls `refused_payments.reset(user_id)`. Someone testing stolen cards can slip one small deposit that succeeds between refusals and never trigger the alert.
+- Keep the brief's "3 consecutive refusals" rule as it is.
+- Add a second rule that counts refused deposits per user over a sliding window (e.g. 5 in 1 h), whether or not deposits succeed in between. Pick the thresholds and write them in supervision.md.
+- Add a test that interleaves successes and refusals and asserts the windowed rule fires.
+Same commit rules as before.
 ````
 
 ## Prompts suivants
