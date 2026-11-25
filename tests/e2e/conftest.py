@@ -13,7 +13,7 @@ from typing import Any
 import httpx
 import pytest
 from browser_flows import PASSWORD, Api, Phone, Stack
-from playwright.sync_api import Browser, BrowserContext, ConsoleMessage, Dialog, Request, expect
+from playwright.sync_api import BrowserContext, ConsoleMessage, Dialog, Request, expect
 
 from toutbet.db import make_engine
 from toutbet.models import create_schema
@@ -222,12 +222,14 @@ def _track(context: BrowserContext, phone: Phone) -> None:
 
 
 @contextmanager
-def _phone_factory(browser: Browser, default: Stack) -> Iterator[Callable[..., Phone]]:
+def _phone_factory(
+    new_context: Callable[..., BrowserContext], default: Stack
+) -> Iterator[Callable[..., Phone]]:
     contexts: list[BrowserContext] = []
     phones: list[Phone] = []
 
     def open_phone(target: Stack = default) -> Phone:
-        context = browser.new_context(**MOBILE)
+        context = new_context(**MOBILE)
         contexts.append(context)
         page = context.new_page()
         page.set_default_timeout(10_000)
@@ -245,8 +247,10 @@ def _phone_factory(browser: Browser, default: Stack) -> Iterator[Callable[..., P
 
 
 @pytest.fixture
-def phones(browser: Browser, stack: Stack) -> Iterator[Callable[..., Phone]]:
-    with _phone_factory(browser, stack) as factory:
+def phones(
+    new_context: Callable[..., BrowserContext], stack: Stack
+) -> Iterator[Callable[..., Phone]]:
+    with _phone_factory(new_context, stack) as factory:
         yield factory
 
 
@@ -256,8 +260,10 @@ def phone(phones: Callable[..., Phone]) -> Phone:
 
 
 @pytest.fixture
-def strict_phone(browser: Browser, strict_stack: Stack) -> Iterator[Phone]:
-    with _phone_factory(browser, strict_stack) as factory:
+def strict_phone(
+    new_context: Callable[..., BrowserContext], strict_stack: Stack
+) -> Iterator[Phone]:
+    with _phone_factory(new_context, strict_stack) as factory:
         yield factory()
 
 
