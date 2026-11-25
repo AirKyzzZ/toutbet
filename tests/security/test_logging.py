@@ -1,12 +1,15 @@
 import io
 import json
+import logging
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from support import Api
 from toutbet.models import LedgerEntry
+from toutbet.observability import configure_logging
 
 
 def _events(stream: io.StringIO) -> list[dict[str, object]]:
@@ -50,3 +53,22 @@ def test_request_id_stored_in_ledger_entry(api: Api) -> None:
     assert entry.request_id == webhook.headers["x-request-id"]
     assert entry.idempotency_key is not None
     assert entry.idempotency_key.startswith("evt_")
+
+
+def test_configure_logging_keeps_uvicorn_access_log_off(monkeypatch: pytest.MonkeyPatch) -> None:
+    root = logging.getLogger()
+    loggers = [root, *(logging.getLogger(name) for name in ("toutbet", "slowapi", "uvicorn"))]
+    for logger in loggers:
+        monkeypatch.setattr(logger, "level", logger.level)
+    for name in ("", "uvicorn", "uvicorn.error", "uvicorn.access"):
+        logger = logging.getLogger(name)
+        monkeypatch.setattr(logger, "handlers", list(logger.handlers))
+        monkeypatch.setattr(logger, "propagate", logger.propagate)
+    access = logging.getLogger("uvicorn.access")
+    access.handlers = []
+    access.propagate = False
+
+    configure_logging()
+
+    assert not access.hasHandlers()
+    assert logging.getLogger("uvicorn.error").hasHandlers()

@@ -100,10 +100,13 @@ def configure_logging(level: int = logging.INFO) -> None:
     root.handlers = [build_log_handler(sys.stdout)]
     root.setLevel(level)
     _LOGGER.setLevel(level)
-    for name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+    for name in ("uvicorn", "uvicorn.error"):
         uvicorn_logger = logging.getLogger(name)
         uvicorn_logger.handlers = []
         uvicorn_logger.propagate = True
+    access_logger = logging.getLogger("uvicorn.access")
+    access_logger.handlers = []
+    access_logger.propagate = False
     logging.getLogger("slowapi").setLevel(logging.ERROR)
 
 
