@@ -8,6 +8,8 @@ Les prompts sont versionnés ici avec les specs pour que la génération du code
 | P1 | 2026-11-25 | Claude Opus 5.5 | génération du socle technique du MVP | dossier `specs/` |
 | R1 | 2026-11-25 | Claude Opus 5.5 (session neuve) + checklist | revue de sécurité du code généré, résultat dans `docs/reviews/r1.md` | code généré, `specs/threats.md`, `specs/design.md` |
 | P2 | 2026-11-25 | Claude Opus 5.5 | correction des écarts trouvés par R1 | code, `specs/`, `docs/reviews/r1.md` |
+| P3 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 2 étapes 1 et 2 : règles Semgrep, DAST, fuzzing, IAST | code, `specs/threats.md`, `docs/reviews/r1.md`, énoncé de l'atelier 2 |
+| P4 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 2 étape 3 : E2E Playwright, Locust, solde négatif | code, `specs/requirements.md`, `specs/design.md`, `docs/reviews/r1.md`, énoncé de l'atelier 2 |
 
 ## P0 : rédaction des specs
 
@@ -248,6 +250,75 @@ Findings to fix, one commit each, in this order:
 For each fix: the test first, then the code, then uv run pytest, uv run ruff check, uv run ruff format --check and uv run mypy src must pass.
 Commit each fix with a conventional commit subject in English, lowercase after the colon, nothing else in the message (a hook adds the trailers). Do not push. Do not edit specs/ or docs/ except the README sections that describe changed behaviour.
 At the end, reply with the commit list, the test count and the output of the four quality commands.
+````
+
+## P3 : atelier 2, analyse statique et dynamique
+
+Les deux agents ont tourné en parallèle sur le même dépôt, chacun avec ses dossiers et ses ports. Prompt envoyé tel quel, seuls les chemins absolus de la machine sont raccourcis :
+
+````text
+Student DevSecOps course (teacher Sylvain Labasse, EPSI), group Maxime Mansiet + Simon Godard. Repo: `.` (FastAPI MVP "ToutBet'", P2P betting with escrow; read `README.md`, `specs/threats.md`, `docs/reviews/r1.md` first). You own **Atelier 2 étapes 1 and 2**. Brief: `pdftotext -layout "../atelier2 (1).pdf" -`.
+
+Another agent works in the same repo at the same time on étape 3 (E2E Playwright + Locust), owning `tests/e2e/`, `tests/load/`, `docs/ateliers/atelier2/e2e/`, `docs/ateliers/atelier2/load/` and the `pyproject.toml`/`uv.lock` dependency groups. Do not touch those. Do not add dependencies to `pyproject.toml`: run extra tools with `uvx`/`uv run --with`, or docker. Use ports 8100 (app) and 8101 (mock PSP) for anything you run, never 8000/8001/8089/82xx. Stage only your own paths (`git add <paths>`), never `git add -A`.
+
+## Étape 1, Semgrep
+- The baseline is already done and committed: `docs/ateliers/atelier2/semgrep/` (0 findings with `semgrep ci` and with 7 public packs). Semgrep CLI is logged in. When you rescan with the platform, run `SEMGREP_REPO_NAME=AirKyzzZ/toutbet SEMGREP_REPO_URL=https://github.com/AirKyzzZ/toutbet semgrep ci`.
+- Note that tests/ are excluded by the default `.semgrepignore`. Do one extra scan including `tests/` and judge those findings (likely test fixtures, justify or fix).
+- Custom rules: the brief asks to propose 2 or 3 app-specific rules with concrete verification criteria, e.g. "direct write of a balance outside RegisterTransaction". Propose 3 (in French, in `docs/ateliers/atelier2/semgrep/regles-personnalisees.md`: name, risk, concrete criteria, threat IDs). Then go beyond the brief and actually write them in `.semgrep/toutbet.yml` with `semgrep --test` fixtures in `.semgrep/tests/` (good + bad examples), run them on the code, record results. Good candidates: balance_cents written outside `services/money.py`; `jwt.decode` without `algorithms`/`audience`/`issuer`; a money/rate field typed `float`/`Decimal`; an APIRouter route without the auth dependency outside the public allowlist; `log_event`/logger called with a password/token/secret kwarg. Pick the three that are both meaningful and expressible.
+- Fix anything real that the extra scans find; rescan with `semgrep ci` at the end and save `apres.json` + a `README.md` update with the before/after table and justification for anything remaining.
+
+## Étape 2, dynamic exploration of the bet-creation API (and around it)
+Run the app locally on 8100 with `ENV=dev` (OpenAPI exposed at `/openapi.json` in dev only), mock PSP on 8101, a temp SQLite db, secrets from `uv run toutbet-admin gen-secrets`, and capture server logs to a file. Cover the three types the brief names and list every test done whatever the result:
+- **DAST**: OWASP ZAP via docker (`zaproxy/zap-stable`, reach the host with `host.docker.internal`), API scan from the OpenAPI spec, authenticated (inject a real bearer token for a test user via ZAP replacer config) and unauthenticated, plus a baseline scan of the static front. Keep the HTML/JSON reports.
+- **Fuzzing**: ffuf (run it in docker, e.g. a `golang` image with `go run github.com/ffuf/ffuf/v2@latest`, or a trusted image; don't install it globally) on paths and on the bet-creation payload fields; plus `uvx schemathesis` (property-based fuzzing from OpenAPI, authenticated) against `/api/bets` and neighbours. Look for 500s, slow responses, schema violations, auth bypass, IDOR across two users.
+- **IAST**: try a real open-source IAST first: Datadog's `ddtrace` IAST (`DD_IAST_ENABLED=true`, run the app with `uv run --with ddtrace ddtrace-run ...`) reporting to a local `ghcr.io/datadog/dd-apm-test-agent` container, then replay the ZAP/schemathesis traffic and read vulnerability tags from the recorded traces. If it does not work on Python 3.13 or offline within reasonable effort, fall back to an honest "IAST léger": instrument the running app (request id correlation between the DAST requests, the JSON logs, SQLAlchemy statement events and `coverage` of the code paths hit) and call it what it is. Never pretend a tool ran if it did not.
+- Report, in `docs/ateliers/atelier2/dast/README.md` (French): table of every test (type, tool, target, payload/idea, result), server log excerpts and any stacktrace, every place the responses leak internal structure (headers, error bodies, framework names, versions, OpenAPI exposure, timing differences on login/registration), and verdicts. Keep raw artifacts (reports, trimmed logs) in that folder; no secrets or tokens in committed files (redact).
+- Fix what can be fixed, each fix with a regression test, one commit per fix (`fix: ...`). Accept and justify the rest.
+
+## Binding style rules
+- Code: zero comments and docstrings except one-line notes on hidden constraints or upstream workarounds. Same conventions as the existing code (ruff, mypy strict, tests assert the security property). All four quality commands must pass at the end: `uv run pytest`, `uv run ruff check`, `uv run ruff format --check`, `uv run mypy src`.
+- Prose: French, short, plain, human, like a student group writing to the teacher. No em dashes, no filler, no emoji.
+- Commits: conventional, English, subject only, lowercase after the colon, `git commit -m "<subject>"`. A hook adds trailers; never add trailers or AI attribution. Do not push. Do not edit `specs/` or `docs/prompts.md`.
+- Clean up containers and background processes you started.
+
+## Report back (under 400 words)
+Commit list; Semgrep before/after numbers; the three custom rules and what they found; table summary of dynamic tests (counts per type, notable findings); what you fixed; what IAST approach actually ran; anything you could not do.
+````
+
+## P4 : atelier 2, tests E2E et de charge
+
+Lancé en même temps que P3 :
+
+````text
+Student DevSecOps course (teacher Sylvain Labasse, EPSI), group Maxime Mansiet + Simon Godard. Repo: `.` (FastAPI MVP "ToutBet'", P2P betting with escrow; read `README.md`, `specs/requirements.md` (abuse stories AS-01..AS-16), `specs/design.md`, `docs/reviews/r1.md` first). You own **Atelier 2 étape 3**. Brief: `pdftotext -layout "../atelier2 (1).pdf" -`.
+
+Another agent works in the same repo at the same time on étapes 1-2 (Semgrep, ZAP, fuzzing) and may commit small `fix:` changes in `src/`. You own `tests/e2e/`, `tests/load/`, `docs/ateliers/atelier2/e2e/`, `docs/ateliers/atelier2/load/`, and dependency groups in `pyproject.toml`/`uv.lock` (add `e2e` and `load` groups, e.g. `pytest-playwright`, `locust`; don't make them default groups that slow the normal test run, and keep `uv run pytest` running only the existing suite by default, e.g. via a marker or testpaths). Use ports 8200 (app), 8201 (mock PSP), 8089 (Locust UI). Stage only your own paths, never `git add -A`. Avoid editing `src/` unless a test reveals a real defect; if so, a separate `fix:` commit with a regression test.
+
+## 1. Abuse stories automated end to end
+The repo already has ~100 in-process API abuse tests in `tests/abuse/`. Add real end-to-end tests with Playwright (python, `pytest-playwright`, Chromium headless, mobile viewport 375×812) against a live stack started by a pytest fixture as subprocesses (uvicorn app + mock PSP + worker if needed, temp SQLite db, generated secrets, readiness polling, teardown). The stack must be runnable in CI later (GitHub Actions, headless, no Docker needed): one command, e.g. `uv run --group e2e pytest tests/e2e`.
+- Critical journey from the course ("authentification > achat > déconnexion"): register, login, deposit through the mock PSP hosted page, KYC, create a bet, invite, a second browser context joins via the invitation link and stakes, logout, then the old token is refused by the API and the UI shows nothing private.
+- Automate as many abuse stories as make sense through the browser or through the browser's network layer (`page.route` to tamper requests the UI sends): stored XSS payloads in display name / bet title render as text and trigger no dialog; no CSP violation in the console on any page; invitation link replay and expired link; tampered stake amount / negative / float / extra fields; acting on someone else's bet (IDOR) with a valid token; stake after the bet closed; bookie staking on own bet; token not in localStorage/cookies/URL; logout invalidates the token server-side; rate limit on login shows a 429. Name tests `test_e2e_asNN_<what>` and map them to AS IDs.
+- Write `docs/ateliers/atelier2/e2e/README.md` (French): how to run, a table AS-NN → test(s) (both the existing API abuse tests and the new E2E ones) → result, and which abuse stories cannot be automated and why.
+
+## 2. Load test with Locust
+- `tests/load/locustfile.py` (+ short README in `docs/ateliers/atelier2/load/`): scenario "many bettors pour onto the same event at once": a seeding step creates one bookie, one open bet, and N funded bettors with invitations (seed through the real API + signed mock-PSP webhooks, or a dedicated load-seed script; never a backdoor route in the app). Users then join and stake on that same bet, with realistic reads (bet detail, wallet) in between.
+- Run it against a realistic stack: PostgreSQL via docker compose (use `docker-compose.yml` + `docker-compose.dev.yml`, or postgres alone + uvicorn with several workers pointed at it), not SQLite. Run twice and compare: production rate limits (expect 429s, that is the throttling working, "congestion des mécanismes de sécurité"), and raised limits via env to find the real breaking point (p95 latency, failures, RPS). Watch the server for errors.
+- Take screenshots of the Locust web UI while the test runs (statistics tab and charts tab) with Playwright headless against `http://localhost:8089`, saved as PNG in `docs/ateliers/atelier2/load/`. The teacher explicitly wants "copie d'écran de l'interface Web de locust exécutant vos tests".
+- Record the numbers (CSV from `--csv`, trimmed) and a short French analysis: where it breaks, what is the bottleneck (DB lock on the ledger chain head? PSP sync calls? argon2 on login?), and "Known issues".
+
+## 3. Same user, many simultaneous stakes: can the balance go negative?
+- There is already `test_as07_concurrent_stakes_never_overspend` (threads + in-process client). Add a live version over real HTTP against the PostgreSQL stack: one user with a known balance fires many concurrent stakes (asyncio + httpx, or a Locust user class with a single account) on many bets at once; assert the number of accepted stakes = floor(balance / stake), final balance ≥ 0 and `toutbet-admin verify-ledger` passes.
+- Prove the risk is real without the protection: in a throwaway git worktree or stash (never committed), replace the conditional debit in `services/money.py` with a naive read-then-write and rerun the same test; record what happens (overspend, negative balance or the DB CHECK constraint catching it). Restore and confirm.
+- Write the answer in French in `docs/ateliers/atelier2/load/solde-negatif.md`: yes/no, why (conditional `UPDATE ... WHERE balance_cents >= :amount` + rowcount check + `CHECK (balance_cents >= 0)` + idempotency keys), the evidence with numbers from both runs.
+
+## Binding style rules
+- Code: zero comments and docstrings except one-line notes on hidden constraints or upstream workarounds. Follow existing conventions (ruff, mypy strict on src). `uv run pytest`, `uv run ruff check`, `uv run ruff format --check`, `uv run mypy src` must pass at the end, plus your e2e command.
+- Prose: French, short, plain, human, like a student group writing to the teacher. No em dashes, no filler, no emoji.
+- Commits: conventional, English, subject only, lowercase after the colon, `git commit -m "<subject>"`, small and atomic. A hook adds trailers; never add trailers or AI attribution. Do not push. Do not edit `specs/` or `docs/prompts.md`.
+- Clean up containers, volumes and background processes you started.
+
+## Report back (under 400 words)
+Commit list; e2e test count and the command; AS coverage (automated vs not); Locust results for both runs (users, RPS, p95, failures, bottleneck); screenshot paths; the negative-balance answer with numbers from the protected and naive runs; any defect found and fixed.
 ````
 
 ## Prompts suivants
