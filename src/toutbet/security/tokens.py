@@ -16,6 +16,10 @@ class InvalidTokenError(Exception):
     pass
 
 
+class TokenSignatureError(InvalidTokenError):
+    pass
+
+
 @dataclass(frozen=True)
 class AccessClaims:
     user_id: uuid.UUID
@@ -50,8 +54,10 @@ def decode_access_token(token: str, secret: str, now: datetime) -> AccessClaims:
             # exp/iat are checked below with the injected Clock; PyJWT would use the system clock.
             options={"require": REQUIRED_CLAIMS, "verify_exp": False, "verify_iat": False},
         )
+    except (jwt.InvalidSignatureError, jwt.InvalidAlgorithmError) as error:
+        raise TokenSignatureError("signature or algorithm rejected") from error
     except jwt.PyJWTError as error:
-        raise InvalidTokenError("signature or claims rejected") from error
+        raise InvalidTokenError("claims rejected") from error
     if set(claims) != set(REQUIRED_CLAIMS):
         raise InvalidTokenError("unexpected claims")
     _check_lifetime(claims.get("iat"), claims.get("exp"), int(now.timestamp()))

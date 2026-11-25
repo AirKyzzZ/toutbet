@@ -14,7 +14,7 @@ from toutbet.models import LoginSession, User
 from toutbet.models.user import ROLE_MODERATOR, ROLE_USER
 from toutbet.observability import log_event
 from toutbet.security.sessions import is_session_active
-from toutbet.security.tokens import InvalidTokenError, decode_access_token
+from toutbet.security.tokens import InvalidTokenError, TokenSignatureError, decode_access_token
 
 _bearer = HTTPBearer(auto_error=False)
 
@@ -48,6 +48,8 @@ def current_user(
         claims = decode_access_token(
             credentials.credentials, settings.jwt_secret.get_secret_value(), now
         )
+    except TokenSignatureError:
+        _reject("bad_signature")
     except InvalidTokenError:
         _reject("invalid")
     with db.begin():

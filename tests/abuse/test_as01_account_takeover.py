@@ -1,4 +1,5 @@
 import io
+import json
 from collections.abc import Callable
 from datetime import timedelta
 from typing import Any
@@ -119,6 +120,26 @@ def test_as01_tampered_token_rejected(api: Api, client: TestClient, tampering: s
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "UNAUTHENTICATED"
     assert client.get("/api/me", headers=player.headers).status_code == 200
+
+
+FORGED = {"alg_none", "bad_signature", "hs512"}
+
+
+@pytest.mark.parametrize("tampering", sorted(TAMPERINGS))
+def test_as01_forged_signature_logged_apart_from_other_rejections(
+    api: Api, client: TestClient, captured_logs: io.StringIO, tampering: str
+) -> None:
+    player = api.signup()
+    secret = api.settings.jwt_secret.get_secret_value()
+    forged = TAMPERINGS[tampering](_claims(api, player.token), secret)
+    captured_logs.truncate(0)
+    captured_logs.seek(0)
+
+    client.get("/api/me", headers={"Authorization": f"Bearer {forged}"})
+
+    events = [json.loads(line) for line in captured_logs.getvalue().splitlines()]
+    reasons = [e["reason"] for e in events if e["event"] == "auth.token_rejected"]
+    assert reasons == ["bad_signature" if tampering in FORGED else "invalid"]
 
 
 def test_as01_login_error_identical_for_unknown_email(api: Api, argon2_calls: list[str]) -> None:
