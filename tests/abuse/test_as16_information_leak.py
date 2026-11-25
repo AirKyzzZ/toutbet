@@ -1,9 +1,11 @@
 import io
 import json
 from collections.abc import Callable
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import event
 
 from support import DEFAULT_PASSWORD, Api, FakeClock, FakePsp, idempotency_headers
 from toutbet.security.webhook_signature import sign_webhook
@@ -150,3 +152,27 @@ def test_as16_logs_never_contain_secrets(
         assert sensitive not in logs
     for line in logs.splitlines():
         json.loads(line)
+
+
+def test_as16_database_error_never_logs_bound_parameters(
+    api: Api, client: TestClient, captured_logs: io.StringIO
+) -> None:
+    engine = client.app.state.engine
+
+    def break_user_insert(
+        _conn: Any, _cursor: Any, statement: str, parameters: Any, *_: Any
+    ) -> tuple[str, Any]:
+        return statement.replace("INSERT INTO users ", "INSERT INTO users_missing "), parameters
+
+    event.listen(engine, "before_cursor_execute", break_user_insert, retval=True)
+    try:
+        response = api.register(birth_date="1987-11-23")
+    finally:
+        event.remove(engine, "before_cursor_execute", break_user_insert)
+
+    assert response.status_code == 500
+    logs = captured_logs.getvalue()
+    assert "error.unhandled" in logs
+    assert "users_missing" in logs
+    for leak in ("1987-11-23", "1987, 11, 23", "$argon2", "argon2id", DEFAULT_PASSWORD):
+        assert leak not in logs

@@ -12,7 +12,7 @@ SQLITE_MAX_OVERFLOW = 40
 def make_engine(database_url: str) -> Engine:
     url = make_url(database_url)
     if url.get_backend_name() != "sqlite":
-        return create_engine(url, pool_pre_ping=True)
+        return create_engine(url, pool_pre_ping=True, hide_parameters=True)
     in_memory = url.database in (None, "", ":memory:")
     pool_options = (
         {}
@@ -22,7 +22,9 @@ def make_engine(database_url: str) -> Engine:
             "max_overflow": SQLITE_MAX_OVERFLOW,
         }
     )
-    engine = create_engine(url, connect_args={"check_same_thread": False}, **pool_options)
+    engine = create_engine(
+        url, connect_args={"check_same_thread": False}, hide_parameters=True, **pool_options
+    )
     _configure_sqlite(engine)
     return engine
 
