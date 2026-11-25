@@ -59,3 +59,14 @@ def revoke_session(db: Session, session_id: uuid.UUID, now: datetime) -> None:
         .execution_options(synchronize_session=False)
     )
     db.execute(statement)
+
+
+def revoke_all_sessions(db: Session, user_id: uuid.UUID, now: datetime) -> int:
+    statement = (
+        update(LoginSession)
+        .where(LoginSession.user_id == user_id, LoginSession.revoked_at.is_(None))
+        .values(revoked_at=now)
+        .execution_options(synchronize_session=False)
+    )
+    result = cast(CursorResult[Any], db.execute(statement))
+    return result.rowcount

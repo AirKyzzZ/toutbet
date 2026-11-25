@@ -15,12 +15,14 @@ from toutbet.clock import SystemClock
 from toutbet.config import ConfigurationError, load_database_settings
 from toutbet.db import make_engine
 from toutbet.models import User, create_schema
-from toutbet.models.user import ROLE_MODERATOR
+from toutbet.models.user import ROLE_MODERATOR, ROLE_USER
 from toutbet.observability import configure_logging, log_event
-from toutbet.schemas.auth import RegisterRequest
+from toutbet.schemas.auth import RegisterRequest, normalize_email
 from toutbet.security.passwords import hash_password
 from toutbet.security.receipts import b64url
+from toutbet.security.sessions import revoke_all_sessions
 from toutbet.services.accounts import create_user, is_adult
+from toutbet.services.ledger import append_audit_event
 from toutbet.services.verification import verify_ledger
 
 
@@ -108,6 +110,32 @@ def create_moderator(args: argparse.Namespace) -> int:
     return 0
 
 
+def revoke_access(args: argparse.Namespace) -> int:
+    now = SystemClock().now()
+    engine = make_engine(load_database_settings().database_url.get_secret_value())
+    with Session(engine) as db, db.begin():
+        user = db.scalar(select(User).where(User.email == normalize_email(args.email)))
+        if user is None:
+            return _fail("no account with this email")
+        demoted = user.role == ROLE_MODERATOR
+        if demoted:
+            user.role = ROLE_USER
+        revoked = revoke_all_sessions(db, user.id, now)
+        details = {"user_id": str(user.id), "sessions": revoked, "demoted": demoted}
+        append_audit_event(
+            db,
+            event_type="admin.access_revoked",
+            now=now,
+            actor_id=None,
+            bet_id=None,
+            payload=details,
+        )
+        log_event("admin.access_revoked", user_id=str(user.id), sessions=revoked, demoted=demoted)
+    engine.dispose()
+    _write(f"{revoked} active session(s) revoked, moderator role removed: {demoted}")
+    return 0
+
+
 def verify(_args: argparse.Namespace) -> int:
     engine = make_engine(load_database_settings().database_url.get_secret_value())
     with Session(engine) as db, db.begin():
@@ -140,6 +168,9 @@ def build_parser() -> argparse.ArgumentParser:
     moderator.add_argument("--display-name", required=True)
     moderator.add_argument("--birth-date", required=True)
     moderator.set_defaults(handler=create_moderator)
+    revoke = commands.add_parser("revoke-access")
+    revoke.add_argument("--email", required=True)
+    revoke.set_defaults(handler=revoke_access)
     commands.add_parser("verify-ledger").set_defaults(handler=verify)
     alerts = commands.add_parser("check-alerts")
     alerts.add_argument("log", type=Path)

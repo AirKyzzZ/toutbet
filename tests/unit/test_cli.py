@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -5,10 +6,11 @@ import pytest
 from sqlalchemy import inspect, select, update
 from sqlalchemy.orm import Session
 
+from support import Api
 from toutbet import cli
 from toutbet.config import load_settings
 from toutbet.db import make_engine
-from toutbet.models import User, Wallet
+from toutbet.models import AuditEvent, User, Wallet
 from toutbet.security.passwords import verify_password
 
 MODERATOR_PASSWORD = "moderator password from stdin"
@@ -150,4 +152,30 @@ def test_init_db_creates_schema_and_chain_heads(
     tables = set(inspect(engine).get_table_names())
     engine.dispose()
     assert {"users", "wallets", "ledger_entries", "audit_events", "chain_heads"} <= tables
+    assert cli.main(["verify-ledger"]) == 0
+
+
+def test_revoke_access_kills_sessions_and_removes_the_moderator_role(api: Api) -> None:
+    moderator = api.moderator()
+    second_session = api.login(moderator.email).json()["access_token"]
+    player = api.signup()
+
+    code = cli.main(["revoke-access", "--email", moderator.email.upper()])
+
+    assert code == 0
+    for token in (moderator.token, second_session):
+        assert (
+            api.client.get("/api/me", headers={"Authorization": f"Bearer {token}"}).status_code
+            == 401
+        )
+    api.relogin(moderator)
+    assert api.client.get("/api/me", headers=moderator.headers).json()["role"] == "user"
+    assert api.client.get("/api/moderation/disputes", headers=moderator.headers).status_code == 403
+    assert api.client.get("/api/me", headers=player.headers).status_code == 200
+    with api.db() as db:
+        event = db.scalars(
+            select(AuditEvent).where(AuditEvent.event_type == "admin.access_revoked")
+        ).one()
+    assert json.loads(event.payload) == {"user_id": moderator.id, "sessions": 2, "demoted": True}
+    assert cli.main(["revoke-access", "--email", "nobody@example.org"]) == 1
     assert cli.main(["verify-ledger"]) == 0
