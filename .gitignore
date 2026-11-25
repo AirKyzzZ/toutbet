@@ -12,3 +12,7 @@ htmlcov/
 *.db
 *.sqlite3
 .DS_Store
+.hypothesis/
+*.db-shm
+*.db-wal
+caddy-root.crt

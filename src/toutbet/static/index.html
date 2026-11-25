@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14532d">
+    <title>ToutBet'</title>
+    <link rel="stylesheet" href="/app.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <script type="module" src="/js/main.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#/bets">ToutBet'</a>
+      <nav id="nav" class="nav" hidden>
+        <a href="#/bets">Paris</a>
+        <a href="#/wallet">Portefeuille</a>
+        <a href="#/moderation" id="nav-moderation" hidden>Modération</a>
+        <button type="button" id="logout" class="link">Déconnexion</button>
+      </nav>
+    </header>
+    <p id="flash" class="flash" role="status" hidden></p>
+    <main id="view" class="view"></main>
+    <footer class="footer">Bac à sable uniquement, aucun argent réel.</footer>
+  </body>
+</html>

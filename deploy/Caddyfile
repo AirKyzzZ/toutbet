@@ -1,0 +1,25 @@
+{
+	admin off
+	servers {
+		protocols h1 h2
+	}
+}
+
+localhost {
+	tls internal
+	request_body {
+		max_size 64KB
+	}
+	header -Server
+	header -Via
+	reverse_proxy app:8000
+}
+
+http://:8080 {
+	request_body {
+		max_size 64KB
+	}
+	header -Server
+	header -Via
+	reverse_proxy app:8000
+}

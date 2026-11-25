@@ -1,0 +1,131 @@
+name: toutbet
+
+x-app-image: &app-image
+  build: .
+  image: toutbet:local
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  proxy:
+    image: caddy:2@sha256:4851e54a46b206517c574821bb5cc67f170d2156041e9fbc4c9193b45e84a75b
+    read_only: true
+    tmpfs:
+      - /tmp
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      front:
+        ipv4_address: 10.89.0.10
+    depends_on:
+      app:
+        condition: service_healthy
+
+  app:
+    <<: *app-image
+    environment:
+      ENV: prod
+      DATABASE_URL: postgresql+psycopg://toutbet_app:${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}@postgres:5432/toutbet
+      JWT_SECRET: ${JWT_SECRET:?run toutbet-admin gen-secrets}
+      RECEIPT_SIGNING_KEY: ${RECEIPT_SIGNING_KEY:?run toutbet-admin gen-secrets}
+      PSP_API_KEY: ${PSP_API_KEY:?run toutbet-admin gen-secrets}
+      PSP_WEBHOOK_SECRET: ${PSP_WEBHOOK_SECRET:?run toutbet-admin gen-secrets}
+      PSP_BASE_URL: http://mock-psp:8001
+      PUBLIC_BASE_URL: https://localhost
+      ALLOWED_HOSTS: localhost,proxy
+      TRUSTED_PROXY_IPS: 10.89.0.10
+    networks:
+      - front
+      - back
+    depends_on:
+      init-db:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *app-image
+    command: ["toutbet-worker"]
+    healthcheck:
+      disable: true
+    environment:
+      DATABASE_URL: postgresql+psycopg://toutbet_app:${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}@postgres:5432/toutbet
+    networks:
+      - back
+    depends_on:
+      init-db:
+        condition: service_completed_successfully
+
+  init-db:
+    <<: *app-image
+    command: ["toutbet-admin", "init-db", "--grants", "/app/deploy/postgres/grants.sql"]
+    restart: "no"
+    healthcheck:
+      disable: true
+    environment:
+      DATABASE_URL: postgresql+psycopg://toutbet_app:${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}@postgres:5432/toutbet
+      DATABASE_ADMIN_URL: postgresql+psycopg://toutbet_owner:${POSTGRES_OWNER_PASSWORD:?set POSTGRES_OWNER_PASSWORD in .env}@postgres:5432/toutbet
+    networks:
+      - back
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17@sha256:87c8b42f423b45d5247e6aa8fdb2e7762fec164c68a50fe3eb07e7bfcaf4dbcf
+    environment:
+      POSTGRES_DB: toutbet
+      POSTGRES_USER: toutbet_owner
+      POSTGRES_PASSWORD: ${POSTGRES_OWNER_PASSWORD:?set POSTGRES_OWNER_PASSWORD in .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/postgres/create-app-role.sh:/docker-entrypoint-initdb.d/10-create-app-role.sh:ro
+    networks:
+      - back
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U toutbet_owner -d toutbet"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mock-psp:
+    <<: *app-image
+    profiles: ["dev"]
+    command: ["mock-psp"]
+    healthcheck:
+      disable: true
+    environment:
+      PSP_API_KEY: ${PSP_API_KEY:?run toutbet-admin gen-secrets}
+      PSP_WEBHOOK_SECRET: ${PSP_WEBHOOK_SECRET:?run toutbet-admin gen-secrets}
+      MOCK_PSP_HOST: 0.0.0.0
+      MOCK_PSP_PUBLIC_URL: http://localhost:8001
+      MOCK_PSP_WEBHOOK_URL: http://proxy:8080/api/webhooks/psp
+    ports:
+      - "127.0.0.1:8001:8001"
+    networks:
+      - front
+
+networks:
+  front:
+    ipam:
+      config:
+        - subnet: 10.89.0.0/24
+  back:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.89.1.0/24
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
