@@ -127,3 +127,46 @@ rules:
       - metavariable-regex:
           metavariable: $HANDLER
           regex: ^(?!(register_account|login|psp_webhook|public_key|healthz)$)
+
+  - id: toutbet-sensitive-data-in-logs
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Sensitive value or f-string passed to a log call. A log event carries named fields that
+      are safe to keep for 90 days: the internal user id, a reason code, an amount. Never a
+      password, token, secret, signature, card number, CVV or IBAN, and never a formatted string
+      that could carry one. The redaction filter is a safety net, not the control (T-I03, RGPD,
+      PCI-DSS).
+    metadata:
+      category: security
+      threats: [T-I03]
+      confidence: MEDIUM
+    pattern-either:
+      - patterns:
+          - pattern: log_event(..., $KEY=$VALUE, ...)
+          - metavariable-regex:
+              metavariable: $KEY
+              regex: (?i)(.*(password|passwd|secret|token|api_?key|authorization|signature|card|cvv|cvc|iban).*|(.*_)?pan(_.*)?$)
+      - patterns:
+          - pattern: log_event(..., $KEY=$VALUE, ...)
+          - metavariable-regex:
+              metavariable: $VALUE
+              regex: (?i)(?!["']).*(password|passwd|secret|token|api_?key|authorization|signature|card|cvv|cvc|iban).*
+      - pattern: log_event(..., f"...", ...)
+      - pattern: log_event(..., $KEY=f"...", ...)
+      - patterns:
+          - pattern-either:
+              - patterns:
+                  - pattern: '$LOGGER.$METHOD(..., extra={..., $KEY: $VALUE, ...}, ...)'
+                  - metavariable-regex:
+                      metavariable: $KEY
+                      regex: (?i).*(password|passwd|secret|token|api_?key|authorization|signature|card|cvv|cvc|iban).*
+              - patterns:
+                  - pattern: $LOGGER.$METHOD($MESSAGE, ..., $ARG, ...)
+                  - metavariable-regex:
+                      metavariable: $ARG
+                      regex: (?i).*(password|passwd|secret|token|api_?key|authorization|signature|card|cvv|cvc|iban).*
+              - pattern: $LOGGER.$METHOD(..., f"...", ...)
+          - metavariable-regex:
+              metavariable: $METHOD
+              regex: ^(debug|info|warning|warn|error|critical|exception|log)$

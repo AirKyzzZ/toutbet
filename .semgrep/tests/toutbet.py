@@ -1,3 +1,4 @@
+import logging
 import uuid
 from decimal import Decimal
 
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Mapped, Session
 
 from toutbet.api.deps import protected_router
 from toutbet.models import Wallet
+from toutbet.observability import log_event
 from toutbet.security.authz import AuthenticatedUser, Moderator, Player, current_user
 from toutbet.services.money import transfer
 
@@ -156,3 +158,54 @@ def build_protected() -> list[APIRouter]:
         return None
 
     return [router, explicit]
+
+
+logger = logging.getLogger("toutbet")
+
+
+def leaky_logs(user_id: uuid.UUID, body: dict[str, str], password: str, token: str) -> None:
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("auth.login_failed", user_id=str(user_id), password=password)
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("auth.token_rejected", access_token=token)
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("psp.webhook_rejected", X_PSP_Signature=body["header"])
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("money.deposit_failed", card_number=body["number"], user_id=str(user_id))
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("money.deposit_failed", pan=body["number"])
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("money.withdrawal_failed", destination_iban=body["iban"])
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("auth.reauthentication_failed", detail=body["password"])
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("auth.refresh", value=token)
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event(f"auth.login_failed for {user_id}")
+    # ruleid: toutbet-sensitive-data-in-logs
+    log_event("auth.login_failed", detail=f"user {user_id} typed {password}")
+    # ruleid: toutbet-sensitive-data-in-logs
+    logger.info(f"login {user_id}")
+    # ruleid: toutbet-sensitive-data-in-logs
+    logger.warning("login failed with %s", password)
+    # ruleid: toutbet-sensitive-data-in-logs
+    logger.error("refresh failed", extra={"token": token})
+    # ruleid: toutbet-sensitive-data-in-logs
+    logger.log(logging.INFO, f"token {token}")
+
+
+def safe_logs(user_id: uuid.UUID, deposit_id: uuid.UUID, reason: str) -> None:
+    # ok: toutbet-sensitive-data-in-logs
+    log_event("auth.token_rejected", reason=reason)
+    # ok: toutbet-sensitive-data-in-logs
+    log_event("auth.login_failed", user_id=str(user_id), reason="bad_password")
+    # ok: toutbet-sensitive-data-in-logs
+    log_event("money.deposit_failed", user_id=str(user_id), deposit_id=str(deposit_id))
+    # ok: toutbet-sensitive-data-in-logs
+    log_event("psp.timeout", level=logging.WARNING, cause=type(reason).__name__)
+    # ok: toutbet-sensitive-data-in-logs
+    log_event("worker.tick", company="toutbet", span=3, expand=True)
+    # ok: toutbet-sensitive-data-in-logs
+    logger.info("login failed for user %s", user_id)
+    # ok: toutbet-sensitive-data-in-logs
+    logger.info("token rejected", extra={"reason": reason})
