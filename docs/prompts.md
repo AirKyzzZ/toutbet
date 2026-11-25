@@ -10,6 +10,7 @@ Les prompts sont versionnés ici avec les specs pour que la génération du code
 | P2 | 2026-11-25 | Claude Opus 5.5 | correction des écarts trouvés par R1 | code, `specs/`, `docs/reviews/r1.md` |
 | P3 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 2 étapes 1 et 2 : règles Semgrep, DAST, fuzzing, IAST | code, `specs/threats.md`, `docs/reviews/r1.md`, énoncé de l'atelier 2 |
 | P4 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 2 étape 3 : E2E Playwright, Locust, solde négatif | code, `specs/requirements.md`, `specs/design.md`, `docs/reviews/r1.md`, énoncé de l'atelier 2 |
+| P5 | 2026-11-25 | Claude Opus 5.5 (agent) | atelier 3 étapes 1 et 3 : modèle de la supply chain, pipeline CI, stratégie des secrets | code, `specs/design.md`, `specs/threats.md`, `docs/prompts.md`, énoncé de l'atelier 3 |
 
 ## P0 : rédaction des specs
 
@@ -319,6 +320,113 @@ The repo already has ~100 in-process API abuse tests in `tests/abuse/`. Add real
 
 ## Report back (under 400 words)
 Commit list; e2e test count and the command; AS coverage (automated vs not); Locust results for both runs (users, RPS, p95, failures, bottleneck); screenshot paths; the negative-balance answer with numbers from the protected and naive runs; any defect found and fixed.
+````
+
+## P5 : atelier 3, supply chain, CI et secrets
+
+Prompt envoyé tel quel, chemins absolus raccourcis. L'étape 2 (SBOM depuis Semgrep Supply Chain) est faite à part, depuis l'interface Semgrep.
+
+````text
+Student DevSecOps course (teacher Sylvain Labasse, EPSI), group Maxime Mansiet + Simon Godard. Repo: `.`, public at https://github.com/AirKyzzZ/toutbet. It is a FastAPI MVP called "ToutBet'", P2P betting with escrow. Read `README.md`, `specs/design.md`, `specs/threats.md` and `docs/prompts.md` first. Ateliers 1 and 2 are done; atelier 2 material is under `docs/ateliers/atelier2/`.
+
+The brief is `pdftotext -layout ../atelier3.pdf -`. You own **étapes 1 and 3**. Étape 2 (Semgrep Supply Chain UI, SBOM export) is handled separately: don't do it, but leave a placeholder section for it in the README described below.
+
+A read-only agent is writing a report from this repo right now. Don't rewrite history. Stage only your own paths (`git add <paths>`, never `-A`). Don't push. Course digest: `(résumé des diapos du cours)` (supply chain and secrets sections).
+
+## Étape 1, environment and supply-chain model
+Write `docs/ateliers/atelier3/supply-chain.md` in French.
+
+**Diagram.** One Mermaid diagram of the real path from keyboard to production, annotated with the security control points.
+- Trust boundaries are drawn as subgraphs, styled red dashed like `specs/design.md` does.
+- Cover how the code was actually produced:
+  - two developers' laptops (editor, terminal, uv, git with signed-off commits and the co-author hook);
+  - Claude Code CLI running locally;
+  - the Anthropic API (cloud), which receives the context;
+  - the context itself: `specs/`, `docs/prompts.md`, `CLAUDE.md`, skills, the repo files;
+  - MCP servers.
+- Then:
+  - GitHub (repo, Actions, Dependabot);
+  - PyPI through `uv.lock` with hashes;
+  - Docker Hub base images;
+  - Semgrep Cloud (the CLI uploads scan results);
+  - Playwright browser downloads;
+  - a container registry;
+  - the deployment target.
+  The last two are not built yet, so mark them as planned.
+
+**MCP servers.** Keep this section generic, because the repo is public.
+- Claude Code runs locally and calls the Anthropic API. MCP servers run either locally as stdio processes or remotely over HTTPS.
+- On this project the code work only used the built-in file, shell and git tools plus the Semgrep CLI. Other MCP servers configured on the developer's machine for personal use (mail, calendar, cloud providers, project trackers) were present in the same agent but not needed.
+- Explain why that is a risk (indirect prompt injection, excessive agency, data exfiltration through a tool) and the control we propose: a per-project MCP allowlist, and tool permissions asked by the CLI.
+- Don't name specific personal services or accounts.
+
+**Threat table.** Same format as `specs/threats.md`: ID, STRIDE category, threat, target, mitigation, status (in place / planned). Aim for 12 to 18 IDs, `T-SC01`… Cover at least:
+- typosquatting or dependency confusion;
+- a compromised PyPI package;
+- an unpinned GitHub Action or base image;
+- `pull_request_target` or fork PRs reading secrets;
+- a leaked token in history or CI logs;
+- a poisoned context file or MCP tool injecting instructions into the agent;
+- an agent committing secrets or weakening tests;
+- a malicious Dependabot-style PR;
+- tampering with the image between CI and deploy (planned: signing/attestation);
+- the Semgrep token;
+- the Playwright browser download.
+
+**Control points.** Implement the cheap ones and say which are done:
+- Pin the `Dockerfile` and compose base images by digest. Use the current digest of the tags already used; get it with `docker buildx imagetools inspect` or `docker manifest inspect`.
+- Make sure the Dockerfile installs with `uv sync --locked`, or the equivalent that fails on lock drift.
+- Add a Dependabot config (`.github/dependabot.yml`) for `uv`, `github-actions` and `docker`, weekly, grouped.
+
+## Étape 3, CI pipeline and secrets
+**`.github/workflows/ci.yml`**, running on `push` and `pull_request` to main.
+- Hardening:
+  - `permissions: contents: read` at the top;
+  - every action pinned by full commit SHA with the version in a trailing comment (that comment is allowed);
+  - `persist-credentials: false` on checkout;
+  - `concurrency` cancel-in-progress;
+  - timeouts on every job;
+  - no `pull_request_target`.
+- Jobs, all using uv with `--locked`:
+  1. **Lint and types:** `uv lock --check`, ruff check, ruff format --check, mypy.
+  2. **Unit, abuse and security tests:** `uv run pytest`.
+  3. **The E2E Playwright suite**, the main ask of the brief: `uv run --group e2e pytest tests/e2e`. Install Chromium with deps, cache it keyed on the Playwright version, and upload traces or screenshots as an artifact on failure.
+  4. **Tests against a real PostgreSQL service container.** Include the currently skipped `tests/security/test_pg_grants.py`. Use whatever the README or the A2 load docs say about creating the restricted role.
+  5. **SAST:** run Semgrep OSS with the public packs already used in `docs/ateliers/atelier2/semgrep/` plus `.semgrep/`, and fail on findings. No Semgrep token, since we can't add repo secrets. Use `semgrep scan`, not `semgrep ci`.
+  6. **Secret scan:** gitleaks over the full history.
+- **Validate locally.** Use `actionlint`: install it with brew, or run it from its docker image. If `act` is easy to use, try the E2E job with it; skip `act` if it's painful. At least run each job's commands locally.
+- Make sure the E2E tests don't depend on anything only present on this Mac.
+
+**Secrets strategy.** Write `docs/ateliers/atelier3/secrets.md` in French.
+- Start from today's inventory: the 4 app secrets plus the 2 DB passwords from the README, and which process needs which. The worker only needs PSP ones, the mock PSP needs some.
+- **(a) How the CD pipeline would define them. Don't build this.** Cover:
+  - a secret manager (Vault, or a cloud one) as the only source;
+  - GitHub Environments with required reviewers;
+  - OIDC from Actions to the secret manager, so no long-lived cloud credential is stored in GitHub;
+  - per-environment secrets;
+  - rotation (JWT key with a kid and an overlap period; PSP keys; DB passwords via Vault dynamic database credentials);
+  - nothing baked into images.
+- **(b) How the app gets them.** Today it uses pydantic-settings from environment variables or `.env`, with fail-fast validation of length and https, and SecretStr.
+  - Propose files mounted at `/run/secrets` (Docker or Kubernetes secrets, or a Vault Agent sidecar rendering them).
+  - If pydantic-settings `secrets_dir` makes this a small change, implement it, with a test. Environment variables still work, files win or lose per a documented rule. Optionally wire it with compose `secrets:`. Keep it minimal; skip it if it grows.
+- Add a short "what an attacker gets" note per secret: blast radius and how to rotate it.
+
+## README for the atelier
+Write `docs/ateliers/atelier3/README.md` in French. Index the files. Leave a section "Étape 2, SBOM et SCA" that says it comes from Semgrep Supply Chain and is still to do.
+
+## Rules
+- Code: no comments except a hidden constraint or a non-obvious invariant. Conventional commit subjects in English, lowercase after the colon, subject only (a hook adds the trailers). Small atomic commits.
+- `uv run pytest`, `uv run ruff check .`, `uv run ruff format --check .` and `uv run mypy src` must pass, and the e2e command too if you touch anything it uses.
+- Don't add runtime dependencies. Dev tools go through `uvx`, docker or brew.
+- French prose: plain, short, human, like two students. No em dashes, no marketing words, no filler.
+- Stop and report if something needs a GitHub setting or a repo secret. Don't change GitHub settings yourself.
+- Clean up any containers you start.
+
+## Report back (under 350 words)
+- Commit list.
+- What is implemented versus only described.
+- actionlint output.
+- What you could not validate locally, and anything the user must do on GitHub.
 ````
 
 ## Prompts suivants
