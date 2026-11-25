@@ -1,11 +1,13 @@
 import secrets
 import subprocess
+import warnings
 from pathlib import Path
 from typing import Any
 
 import pytest
 
 from support import random_seed
+from toutbet import config
 from toutbet.config import ConfigurationError, load_settings, load_worker_settings
 
 SECRET_NAMES = ("JWT_SECRET", "RECEIPT_SIGNING_KEY", "PSP_API_KEY", "PSP_WEBHOOK_SECRET")
@@ -116,3 +118,62 @@ def test_env_file_is_ignored_by_git() -> None:
     )
 
     assert result.stdout.strip() == ".env"
+
+
+def test_mounted_secret_files_win_over_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from_file = secrets.token_urlsafe(48)
+    from_env = secrets.token_urlsafe(48)
+    (tmp_path / "jwt_secret").write_text(from_file + "\n", encoding="utf-8")
+    monkeypatch.setenv("JWT_SECRET", secrets.token_urlsafe(48))
+    monkeypatch.setenv("PSP_WEBHOOK_SECRET", from_env)
+    monkeypatch.setattr(config, "SECRETS_DIR", tmp_path)
+    values = _valid()
+    del values["jwt_secret"], values["psp_webhook_secret"]
+
+    settings = load_settings(**values)
+
+    assert settings.jwt_secret.get_secret_value() == from_file
+    assert settings.psp_webhook_secret.get_secret_value() == from_env
+
+
+def test_worker_reads_its_secrets_from_mounted_files(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    api_key = secrets.token_urlsafe(48)
+    database_url = "postgresql+psycopg://toutbet_app:from-file@db:5432/toutbet"
+    (tmp_path / "PSP_API_KEY").write_text(api_key, encoding="utf-8")
+    (tmp_path / "DATABASE_URL").write_text(database_url, encoding="utf-8")
+    monkeypatch.setattr(config, "SECRETS_DIR", tmp_path)
+
+    settings = load_worker_settings(_env_file=None, psp_base_url="https://psp.test")
+
+    assert settings.psp_api_key.get_secret_value() == api_key
+    assert settings.database_url.get_secret_value() == database_url
+
+
+def test_weak_mounted_secret_refused_without_printing_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "psp_api_key").write_text("weak-file-secret", encoding="utf-8")
+    monkeypatch.setenv("PSP_API_KEY", secrets.token_urlsafe(48))
+    monkeypatch.setattr(config, "SECRETS_DIR", tmp_path)
+    values = _valid()
+    del values["psp_api_key"]
+
+    with pytest.raises(ConfigurationError) as error:
+        load_settings(**values)
+
+    assert "PSP_API_KEY" in str(error.value)
+    assert "weak-file-secret" not in str(error.value)
+
+
+def test_missing_secrets_directory_is_skipped_silently(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(config, "SECRETS_DIR", tmp_path / "absent")
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert load_settings(**_valid()).env == "prod"

@@ -1,13 +1,20 @@
 import base64
 import binascii
+from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from fastapi import Request
 from pydantic import SecretStr, ValidationError, ValidationInfo, field_validator
-from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    NoDecode,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+)
 
 MIN_SECRET_BYTES = 32
 ED25519_SEED_BYTES = 32
+SECRETS_DIR = Path("/run/secrets")
 
 
 class ConfigurationError(Exception):
@@ -24,6 +31,17 @@ class DatabaseSettings(BaseSettings):
 
     database_url: SecretStr = SecretStr("sqlite:///./toutbet.db")
     database_admin_url: SecretStr | None = None
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],  # noqa: ARG003
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return init_settings, file_secret_settings, env_settings, dotenv_settings
 
 
 def reject_empty(value: Any) -> Any:
@@ -151,23 +169,27 @@ def describe_validation_error(error: ValidationError) -> str:
     return "Invalid configuration: " + "; ".join(problems)
 
 
+def mounted_secrets(overrides: dict[str, Any]) -> dict[str, Any]:
+    return {"_secrets_dir": SECRETS_DIR if SECRETS_DIR.is_dir() else None, **overrides}
+
+
 def load_settings(**overrides: Any) -> Settings:
     try:
-        return Settings(**overrides)
+        return Settings(**mounted_secrets(overrides))
     except ValidationError as error:
         raise ConfigurationError(describe_validation_error(error)) from None
 
 
 def load_database_settings(**overrides: Any) -> DatabaseSettings:
     try:
-        return DatabaseSettings(**overrides)
+        return DatabaseSettings(**mounted_secrets(overrides))
     except ValidationError as error:
         raise ConfigurationError(describe_validation_error(error)) from None
 
 
 def load_worker_settings(**overrides: Any) -> WorkerSettings:
     try:
-        return WorkerSettings(**overrides)
+        return WorkerSettings(**mounted_secrets(overrides))
     except ValidationError as error:
         raise ConfigurationError(describe_validation_error(error)) from None
 
