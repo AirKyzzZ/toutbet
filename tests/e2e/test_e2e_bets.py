@@ -305,3 +305,19 @@ def test_e2e_as10_signup_flood_gets_429(strict_phone: Phone) -> None:
 
     assert statuses == [202] * 5 + [429]
     expect(strict_phone.flash).to_have_text(RATE_LIMITED)
+
+
+def test_e2e_as05_unbroken_title_keeps_the_page_phone_wide(phone: Phone) -> None:
+    title = "M" * 140
+    phone.signup(new_account("bookie"))
+
+    bet_id = phone.create_bet(title, description="x" * 900)
+    expect(phone.page.get_by_role("heading", name=title)).to_be_visible()
+    bet_page_width = phone.page.evaluate("document.documentElement.scrollWidth")
+    phone.invite(bet_id)
+    phone.open("#/bets")
+    expect(phone.view.get_by_role("link", name=title)).to_be_visible()
+    list_width = phone.page.evaluate("document.documentElement.scrollWidth")
+
+    assert bet_page_width <= 375
+    assert list_width <= 375
