@@ -4,8 +4,40 @@ Les prompts sont versionnés ici avec les specs pour que la génération du code
 
 | # | Date | Modèle | Objet | Contexte fourni |
 |---|---|---|---|---|
+| P0 | 2026-11-25 | Claude Opus 5.5 | rédaction des specs, du modèle de menaces et du prompt P1 | énoncés des ateliers 1 à 4, résumé des diapos du cours |
 | P1 | 2026-11-25 | Claude Opus 5.5 | génération du socle technique du MVP | dossier `specs/` |
 | R1 | après P1 | binôme + agent de revue séparé | revue de sécurité du code généré | code généré, `specs/threats.md`, `specs/design.md` |
+
+## P0 : rédaction des specs
+
+On a d'abord fixé les choix produit et la stack nous-mêmes, puis on a fait rédiger les specs par un agent à partir de ces décisions. On a relu, vérifié les liens entre identifiants et le rendu des diagrammes, puis corrigé avant commit. Prompt envoyé (chemins locaux retirés) :
+
+````text
+You are writing the secure-design deliverables of a student DevSecOps workshop (course "Sécurité pour les devs", teacher Sylvain Labasse, EPSI) for Maxime Mansiet and Simon Godard. Work only in the empty git repo. No application code in this task: specs and the generation prompt only. Another agent will later receive your prompt verbatim and generate the MVP from it, so the prompt quality decides the code quality.
+
+## Read first
+- Brief: atelier1.pdf. Skim ateliers 2-4 too so the design anticipates what comes next (Semgrep, ZAP/ffuf, pytest/Playwright abuse-story tests, Locust load test, a race-condition test on balance, GitHub Actions CI, SBOM, secrets strategy, alerting, chaos engineering).
+- Course recommendations digest (deck-summary.md). The grader checks that we "suivent les recommandations du cours". Key ones: spec-driven layout (specs/STEERING.md, requirements as EARS-style testable stories, design with versioned Mermaid diagrams, specs/tasks/TASKS.md), "1 menace = 1 ticket / US sécu", least privilege by design, prompt/spec historised in markdown, human security review of generated code, LLM pitfalls (injection, SSRF, path traversal, broken access control, missing HSTS/CSP, obsolete libs).
+
+## Product decisions already made (ToutBet', mobile-first P2P betting)
+- Roles: Parieur, Bookie (any user can create a bet and becomes its bookie), Modérateur (platform staff, settles disputes), plus system actors (PSP, scheduler).
+- Money: integer cents only. Wallet per user. Deposits via a PSP-hosted payment page (sandbox/mock PSP), credited only by an HMAC-signed, idempotent webhook. Card data never reaches our servers (PCI-DSS SAQ-A scope). Withdrawals require a verified identity (KYC status mocked for the MVP).
+- Escrow: stakes are debited atomically from the wallet into the bet's escrow; an append-only, hash-chained ledger records every movement (non-repudiation). Commission: bookie rate set at creation, capped (e.g. ≤ 10%), platform 5%, taken from the losers' pool at settlement; refund on cancellation.
+- Bet lifecycle: open → closed (deadline, before the event) → result proposed by the bookie → contest window (e.g. 24h) → settled, or disputed (contests above a threshold) → moderator decision. Bookie cannot stake on their own bet. Invitations by single-use expiring link. Optional minimum stake.
+- Stack for the MVP (put it in the prompt): Python 3.13 + FastAPI, SQLAlchemy 2, Pydantic v2, SQLite by default through DATABASE_URL and Postgres via docker compose, argon2id passwords, short-lived JWT access tokens + server-side session revocation on logout, rate limiting (slowapi), strict security headers (HSTS, CSP without inline scripts, etc.), strict CORS allowlist, idempotency keys on money endpoints, atomic conditional balance debit (UPDATE ... WHERE balance >= amount) so concurrent bets cannot overspend, generic error responses with no stacktraces, structured JSON logs that never contain secrets/card data/passwords, uv with locked hashes, .env gitignored from the first commit with a .env.example, a minimal mobile-first static web front (vanilla JS in separate files, no inline JS so CSP holds) served by FastAPI, pytest tests for each abuse story the API can exercise.
+
+## Deliverables (French prose, all files in the repo)
+1. specs/STEERING.md: mission, MVP scope and non-goals, security principles, a few KPIs/SLOs. Short.
+2. specs/requirements.md: about 10 to 12 user stories (US-01...) for the MVP, each with EARS-style acceptance criteria, and for each one an abuse story (AS-01...) in the form "En tant que <acteur malveillant>, je veux ... pour ...", each linked to threat IDs. Cover the brief's stakes: result manipulation, fund theft, identity fraud, DoS during major events.
+3. specs/design.md: technical architecture as a Mermaid flowchart with entities (roles, mobile PWA client, reverse proxy/WAF, FastAPI app, database, PSP API + webhook, secret store, log pipeline), numbered data flows, where sensitive data lives, and trust boundaries drawn in red dashed lines, each boundary listed TB1... with what changes in trust and what is checked when crossing it. Also: data model sketch, bet lifecycle state diagram, escrow/commission arithmetic with a worked example.
+4. specs/threats.md: STRIDE matrix as the brief's table (Catégorie | Menace identifiée | Composant visé | Mitigation proposée), plus an ID column and links to AS/US/TB. At least 3 rows per STRIDE category, concrete to ToutBet'. Include the brief's example row. Each threat = one security task or US ("1 menace = 1 ticket").
+5. specs/tasks/TASKS.md: atomic implementation tasks, each with inputs, "fait quand" criteria including the test that proves it, and links to US/AS/T IDs.
+6. docs/prompts.md: the prompt log, with (a) the main generation prompt in English, to be given verbatim to Claude Opus 5.5 with the specs/ folder as context, and (b) a short human security-review prompt/checklist to run on the generated code afterwards.
+
+## Binding style rules
+- Prose in French, plain and concise, like a student group writing for their teacher. No em dashes, no marketing words, no emoji, no filler.
+- Commits: conventional commits, English, subject line only, one per deliverable. Never push. Don't write application code.
+````
 
 ## P1 : génération du socle technique du MVP
 
