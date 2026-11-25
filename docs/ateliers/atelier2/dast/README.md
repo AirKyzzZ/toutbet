@@ -64,15 +64,25 @@ File "src/toutbet/services/bets.py", line 60, in create_bet
 OverflowError: date value out of range
 ```
 
-Caractère NUL (PostgreSQL, 10 fois : création de pari et connexion) :
+Caractère NUL (PostgreSQL, 10 fois) : 5 sur la création de pari et 5 sur la connexion. Ffuf en déclenche 6 (F5, titre, description et email de connexion), schemathesis 3 (F8 : un seul cas, rejoué pour le réduire), et la dixième est une requête isolée sur `POST /api/bets` à 13:57:52, juste avant la campagne ffuf.
+
+Création de pari :
 
 ```text
 File "src/toutbet/services/bets.py", line 83, in create_bet
-File "src/toutbet/services/accounts.py", line 96, in authenticate
 sqlalchemy.exc.DataError: (psycopg.DataError) PostgreSQL text fields cannot contain NUL (0x00) bytes
 [SQL: INSERT INTO bets (id, bookie_id, title, description, ...) VALUES (...)]
 [SQL parameters hidden due to hide_parameters=True]
 ```
+
+Connexion :
+
+```text
+File "src/toutbet/services/accounts.py", line 96, in authenticate
+(Background on this error at: https://sqlalche.me/e/21/9h9h)
+```
+
+Le code `9h9h` est celui de `DataError`, la même erreur que pour les paris. Seule la trace du pari est gardée en entier.
 
 Traces complètes dans `logs/stacktrace-overflow-sqlite.txt` et `logs/stacktrace-nul-postgresql.txt`, liste des 22 erreurs dans `logs/erreurs-*-avant.jsonl`. On a vérifié qu'aucune valeur saisie (titre, email) n'apparaît dans ces traces.
 
