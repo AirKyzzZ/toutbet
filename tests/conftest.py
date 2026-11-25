@@ -26,6 +26,8 @@ LIMIT_FIELDS = (
     "rate_limit_refresh",
     "rate_limit_write",
     "rate_limit_read",
+    "rate_limit_write_per_ip",
+    "rate_limit_read_per_ip",
     "rate_limit_kyc",
     "rate_limit_withdrawals",
     "rate_limit_invitation_accept",

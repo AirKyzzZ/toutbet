@@ -79,6 +79,8 @@ class Settings(WorkerSettings):
     rate_limit_refresh: str = "30/minute"
     rate_limit_write: str = "20/minute"
     rate_limit_read: str = "120/minute"
+    rate_limit_write_per_ip: str = "200/minute"
+    rate_limit_read_per_ip: str = "1200/minute"
     rate_limit_kyc: str = "5/hour"
     rate_limit_withdrawals: str = "5/hour"
     rate_limit_invitation_accept: str = "10/minute"

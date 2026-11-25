@@ -29,6 +29,31 @@ def test_as13_write_rate_limit_returns_429_with_retry_after(
     )
 
 
+def test_as13_per_ip_limit_applies_across_accounts(
+    make_client: Callable[..., TestClient], clock: FakeClock, psp: FakePsp
+) -> None:
+    api = Api(
+        make_client(rate_limit_write_per_ip="3/minute", rate_limit_read_per_ip="3/minute"),
+        clock,
+        psp,
+    )
+    first, second = api.signup(), api.signup()
+    shared_ip = TestClient(api.client.app, client=("198.51.100.7", 40000))
+    rotation = (first, second, first, second)
+
+    writes = [shared_ip.post("/api/bets", json=api.bet_body(), headers=p.headers) for p in rotation]
+    reads = [shared_ip.get("/api/wallet", headers=p.headers) for p in rotation]
+    other_ip = api.client.post("/api/bets", json=api.bet_body(), headers=second.headers)
+
+    assert [r.status_code for r in writes] == [201, 201, 201, 429]
+    assert [r.status_code for r in reads] == [200, 200, 200, 429]
+    assert writes[3].json()["error"]["code"] == reads[3].json()["error"]["code"] == "RATE_LIMITED"
+    assert int(writes[3].headers["retry-after"]) > 0
+    assert other_ip.status_code == 201
+    with api.db() as db:
+        assert len(db.scalars(select(Bet)).all()) == 4
+
+
 def test_as13_oversized_body_returns_413(api: Api, client: TestClient) -> None:
     bookie = api.signup()
     body = api.bet_body(description="x" * (70 * 1024))

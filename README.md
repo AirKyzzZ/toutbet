@@ -141,7 +141,7 @@ uv run toutbet-admin verify-ledger
 | T-I06 | SEC-I06 | `security/test_headers.py::test_security_headers_on_api_and_static`<br>`curl -I http://localhost` |
 | T-I07 | SEC-I07 | `abuse/test_as03_wallet_idor.py::test_as03_bet_view_shows_only_pseudonyms_and_totals`<br>`abuse/test_as03_wallet_idor.py::test_as03_responses_never_contain_password_hash` |
 | T-I08 | SEC-I08 | `abuse/test_as16_information_leak.py::test_as16_static_path_traversal_returns_404` |
-| T-D01 | SEC-D01 | `abuse/test_as13_event_flood.py::test_as13_write_rate_limit_returns_429_with_retry_after`<br>`security/test_feature_switches.py::test_feature_switch_returns_503` |
+| T-D01 | SEC-D01 | `abuse/test_as13_event_flood.py::test_as13_write_rate_limit_returns_429_with_retry_after`<br>`abuse/test_as13_event_flood.py::test_as13_per_ip_limit_applies_across_accounts`<br>`security/test_feature_switches.py::test_feature_switch_returns_503` |
 | T-D02 | SEC-D02 | `abuse/test_as01_account_takeover.py::test_as01_long_password_rejected_without_hashing`<br>`abuse/test_as01_account_takeover.py::test_as01_rate_limit_applies_before_hashing` |
 | T-D03 | SEC-D03 | `abuse/test_as13_event_flood.py::test_as13_oversized_body_returns_413`<br>`abuse/test_as13_event_flood.py::test_as13_page_size_capped_at_50` |
 | T-D04 | SEC-D04 | `abuse/test_as10_contest_flood.py::test_as10_contest_requires_stake`<br>`abuse/test_as10_contest_flood.py::test_as10_second_contest_rejected`<br>`abuse/test_as10_contest_flood.py::test_as10_small_stakes_do_not_reach_threshold` |
@@ -172,7 +172,7 @@ Where the specs were silent, ambiguous or in conflict, the more restrictive opti
 - **KYC.** Starting KYC when already verified answers `409`. A signed `kyc.rejected` webhook can downgrade a status.
 - **Pagination.** `page_size` above 50 is rejected with `422` instead of being silently capped.
 - **Body limit.** A non-numeric `Content-Length` also gets `413`.
-- **Rate limiting.** slowapi decorators are applied in router factories so each `create_app(settings)` gets its own limiter and its own limits. slowapi's `RATELIMIT_ENABLED` environment switch is overridden: limits cannot be turned off by environment. Unauthenticated limits key on the client IP, authenticated ones on the user id; "write" and "read" are shared buckets per user.
+- **Rate limiting.** slowapi decorators are applied in router factories so each `create_app(settings)` gets its own limiter and its own limits. slowapi's `RATELIMIT_ENABLED` environment switch is overridden: limits cannot be turned off by environment. Unauthenticated limits key on the client IP, authenticated ones on the user id; "write" and "read" are shared buckets per user, and each also has a per-IP bucket on top (`RATE_LIMIT_WRITE_PER_IP`, default 200/minute, and `RATE_LIMIT_READ_PER_IP`, default 1200/minute) so several accounts behind one address cannot add up their quotas. The per-IP defaults are ten times the per-user ones because many legitimate users share an address behind a stadium Wi-Fi or a carrier-grade NAT.
 - **Errors.** The trusted-host rejection keeps Starlette's plain `400 Invalid host header` body. `HEAD` is not routed for API endpoints.
 - **Logs.** The card-number pattern only matches standalone digit groups so ledger hashes published in `ledger.head` are never mangled. The audit event `bet.result_proposed` stores the SHA-256 of the bookie's note, while `moderation.decision` keeps the justification, which T-R03 requires.
 - **Secrets.** `PSP_API_KEY` is also held to 32 bytes, and `gen-secrets` prints one so the app and the mock PSP can share it.

@@ -46,14 +46,21 @@ class RateLimits:
         return cast(Callable[[Endpoint], Endpoint], self.limiter.limit(limit, key_func=user_key))
 
     def writes(self) -> Callable[[Endpoint], Endpoint]:
-        return self._shared(self.settings.rate_limit_write, "writes")
+        settings = self.settings
+        return self._shared(settings.rate_limit_write, settings.rate_limit_write_per_ip, "writes")
 
     def reads(self) -> Callable[[Endpoint], Endpoint]:
-        return self._shared(self.settings.rate_limit_read, "reads")
+        settings = self.settings
+        return self._shared(settings.rate_limit_read, settings.rate_limit_read_per_ip, "reads")
 
-    def _shared(self, limit: str, scope: str) -> Callable[[Endpoint], Endpoint]:
-        decorator = self.limiter.shared_limit(limit, scope=scope, key_func=user_key)
-        return cast(Callable[[Endpoint], Endpoint], decorator)
+    def _shared(self, per_user: str, per_ip: str, scope: str) -> Callable[[Endpoint], Endpoint]:
+        user_limit = self.limiter.shared_limit(per_user, scope=scope, key_func=user_key)
+        ip_limit = self.limiter.shared_limit(per_ip, scope=f"{scope}-per-ip", key_func=ip_key)
+
+        def decorate(endpoint: Endpoint) -> Endpoint:
+            return cast(Endpoint, ip_limit(user_limit(endpoint)))
+
+        return decorate
 
 
 def rate_limit_exceeded_handler(request: Request, exc: Exception) -> Response:
