@@ -57,6 +57,7 @@ services:
     healthcheck:
       disable: true
     environment:
+      ENV: prod
       DATABASE_URL: postgresql+psycopg://toutbet_app:${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env}@postgres:5432/toutbet
       PSP_API_KEY: ${PSP_API_KEY:?run toutbet-admin gen-secrets}
       PSP_BASE_URL: http://mock-psp:8001

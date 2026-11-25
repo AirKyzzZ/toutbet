@@ -39,10 +39,12 @@ Compose reads the same `.env`. Besides the four secrets above it needs two datab
 ```sh
 echo "POSTGRES_OWNER_PASSWORD=$(openssl rand -hex 32)" >> .env
 echo "APP_DB_PASSWORD=$(openssl rand -hex 32)" >> .env
-docker compose --profile dev up --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile dev up --build
 ```
 
-Services: `proxy` (Caddy, TLS with its internal CA, HTTP to HTTPS redirect, 64 KB body limit), `app` and `worker` (same non-root, read-only image; the worker also reaches the PSP to reconcile pending withdrawals), `postgres` (no published port, internal network only), `init-db` (one-shot: creates the schema with the owner role, then applies `deploy/postgres/grants.sql`) and `mock-psp` (`dev` profile only). The app runs with `ENV=prod`.
+Services: `proxy` (Caddy, TLS with its internal CA, HTTP to HTTPS redirect, 64 KB body limit), `app` and `worker` (same non-root, read-only image; the worker also reaches the PSP to reconcile pending withdrawals), `postgres` (no published port, internal network only), `init-db` (one-shot: creates the schema with the owner role, then applies `deploy/postgres/grants.sql`) and `mock-psp` (`dev` profile only).
+
+`docker-compose.yml` runs the app and the worker with `ENV=prod`. In that mode they refuse to start unless `PSP_BASE_URL` and `PUBLIC_BASE_URL` use https, and the error names the variable. The mock PSP only speaks plain HTTP on the front network, so the local stack adds the explicit override `docker-compose.dev.yml`, which switches both services to `ENV=dev` (this also serves `/docs`). `docker-compose.yml` alone is the production shape: it starts once `PSP_BASE_URL` points to an https PSP.
 
 Browse https://localhost after trusting Caddy's local CA, rather than disabling TLS checks:
 

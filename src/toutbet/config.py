@@ -3,7 +3,7 @@ import binascii
 from typing import Annotated, Any, Literal
 
 from fastapi import Request
-from pydantic import SecretStr, ValidationError, field_validator
+from pydantic import SecretStr, ValidationError, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 MIN_SECRET_BYTES = 32
@@ -38,9 +38,11 @@ def require_long(value: SecretStr) -> SecretStr:
     return value
 
 
-def require_http_url(value: str) -> str:
+def require_http_url(value: str, info: ValidationInfo) -> str:
     if not value.startswith(("https://", "http://")):
         raise ValueError("must be an http(s) URL")
+    if info.data.get("env") == "prod" and not value.startswith("https://"):
+        raise ValueError("must use https when ENV=prod")
     return value.rstrip("/")
 
 
@@ -61,8 +63,8 @@ class WorkerSettings(DatabaseSettings):
 
     @field_validator("psp_base_url")
     @classmethod
-    def require_http_psp_url(cls, value: str) -> str:
-        return require_http_url(value)
+    def require_http_psp_url(cls, value: str, info: ValidationInfo) -> str:
+        return require_http_url(value, info)
 
 
 class Settings(WorkerSettings):
@@ -123,8 +125,8 @@ class Settings(WorkerSettings):
 
     @field_validator("public_base_url")
     @classmethod
-    def require_http_public_url(cls, value: str) -> str:
-        return require_http_url(value)
+    def require_http_public_url(cls, value: str, info: ValidationInfo) -> str:
+        return require_http_url(value, info)
 
 
 def decode_seed(encoded: str) -> bytes:

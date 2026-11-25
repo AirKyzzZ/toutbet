@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 
 from support import random_seed
-from toutbet.config import ConfigurationError, load_settings
+from toutbet.config import ConfigurationError, load_settings, load_worker_settings
 
 SECRET_NAMES = ("JWT_SECRET", "RECEIPT_SIGNING_KEY", "PSP_API_KEY", "PSP_WEBHOOK_SECRET")
 
@@ -25,7 +25,7 @@ def _valid() -> dict[str, Any]:
 
 @pytest.fixture(autouse=True)
 def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    for name in (*SECRET_NAMES, "PSP_BASE_URL", "PUBLIC_BASE_URL", "CORS_ORIGINS"):
+    for name in (*SECRET_NAMES, "ENV", "PSP_BASE_URL", "PUBLIC_BASE_URL", "CORS_ORIGINS"):
         monkeypatch.delenv(name, raising=False)
 
 
@@ -63,6 +63,27 @@ def test_settings_error_does_not_print_secret_value() -> None:
     assert weak not in message
     assert error.value.__cause__ is None
     assert error.value.__suppress_context__
+
+
+def test_prod_refuses_plain_http_psp_and_public_urls() -> None:
+    for name in ("PSP_BASE_URL", "PUBLIC_BASE_URL"):
+        values = {**_valid(), name.lower(): "http://plain-host.test"}
+
+        with pytest.raises(ConfigurationError) as error:
+            load_settings(**values, env="prod")
+
+        assert f"{name} must use https when ENV=prod" in str(error.value)
+        assert "plain-host.test" not in str(error.value)
+        assert load_settings(**values, env="dev").env == "dev"
+
+    with pytest.raises(ConfigurationError) as worker_error:
+        load_worker_settings(
+            _env_file=None,
+            env="prod",
+            psp_base_url="http://plain-host.test",
+            psp_api_key=secrets.token_urlsafe(48),
+        )
+    assert "PSP_BASE_URL must use https when ENV=prod" in str(worker_error.value)
 
 
 def test_settings_reject_wildcard_cors_origin() -> None:

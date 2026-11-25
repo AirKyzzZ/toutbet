@@ -1,0 +1,8 @@
+services:
+  app:
+    environment:
+      ENV: dev
+
+  worker:
+    environment:
+      ENV: dev
