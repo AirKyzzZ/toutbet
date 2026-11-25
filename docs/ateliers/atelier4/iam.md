@@ -27,7 +27,7 @@ Rôles :
 | Zone | Action | Développeur | Lead / Security Champion | Ops / Release manager | Agent IA | Auditeur | Menace couverte |
 |---|---|---|---|---|---|---|---|
 | Postes | Poste chiffré, verrouillé, 2FA GitHub | ✅ obligatoire | ✅ obligatoire | ✅ obligatoire | sans objet | sans objet | T-SC16 |
-| Postes | Lire `.env` local (secrets de dev générés) | ✅ | ✅ | ✅ | ❌ (`deny Read(./.env)`) | ❌ | T-SC10 |
+| Postes | Lire `.env` local (secrets de dev générés) | ✅ | ✅ | ✅ | ❌ (`deny Read(./.env)`, prévu, T-SC10) | ❌ | T-SC10 |
 | Postes | Lancer `toutbet-admin gen-secrets` | ✅ | ✅ | ✅ | ❌ (la sortie partirait chez Anthropic) | ❌ | T-SC10 |
 | Agent IA et contexte | Lancer Claude Code sur le dépôt | ✅ | ✅ | ❌ (pas besoin) | sans objet | ❌ | T-SC11 |
 | Agent IA et contexte | Modifier `CLAUDE.md`, `.claude/settings.json`, `.mcp.json`, les skills | PR | PR (CODEOWNER) | ❌ | ❌ | lecture | T-SC07, T-SC11 |
@@ -178,7 +178,7 @@ Le « départ » de l'agent, c'est la fin de son usage sur le projet ou un incid
 | 2 | Retirer les serveurs MCP et leurs jetons | `claude mcp list` puis `claude mcp remove <nom>` sur chaque poste, et révoquer les autorisations OAuth des MCP distants dans chaque service (page des applications autorisées) |
 | 3 | Retirer ses permissions du projet | PR qui vide `permissions.allow` dans `.claude/settings.json`, garde les `deny`, et retire les consignes de `CLAUDE.md` |
 | 4 | Vérifier ce qu'il a touché récemment | `git log --since=<date> --format='%h %an %s'` et relecture des derniers diffs, puisque ses commits portent le co-auteur et que les prompts sont dans `docs/prompts.md` |
-| 5 | Secrets qu'il a pu voir | ceux qui sont passés dans son contexte (sortie de commande, fichier lu). Avec `deny Read(./.env)` il n'y en a pas. Sinon on fait tourner les secrets de dev concernés |
+| 5 | Secrets qu'il a pu voir | ceux qui sont passés dans son contexte (sortie de commande, fichier lu). La règle `deny Read(./.env)` est prévue (T-SC10) mais pas encore dans le dépôt : en attendant, on fait tourner les secrets de dev qu'il a pu lire |
 
 ### Auditeur
 

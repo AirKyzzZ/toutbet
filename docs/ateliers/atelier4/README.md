@@ -7,7 +7,7 @@ Les ateliers 1 à 3 ont construit et protégé l'application et sa chaîne de pr
 | Étape | Fichier | Contenu |
 |---|---|---|
 | 1 | [`iam.md`](iam.md) | matrice des privilèges (5 rôles, zones de l'atelier 3, menaces `T-SC*`), workflow d'approbation des déploiements, check-lists de révocation par rôle, attestation trimestrielle |
-| 2 | [`supervision.md`](supervision.md) | événements réellement journalisés, 23 règles d'alerte (nom, condition, sévérité, réponse), logs à croiser sur un scénario de jeton de modérateur volé, cartes et mots de passe hors des logs, conservation |
+| 2 | [`supervision.md`](supervision.md) | événements réellement journalisés, 24 règles d'alerte (nom, condition, sévérité, réponse), logs à croiser sur un scénario de jeton de modérateur volé, cartes et mots de passe hors des logs, conservation |
 | 3 | [`chaos.md`](chaos.md) | PSP, PostgreSQL et worker perturbés, mode dégradé sans création de paris, conditions d'arrêt, fiche d'expérience PSP à 10 s et résultat du run local |
 | 3 | [`chaos/`](chaos/) | script de l'expérience (`psp_latency.py`) et mesures brutes |
 
