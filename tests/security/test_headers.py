@@ -31,6 +31,8 @@ def test_security_headers_on_api_and_static(client: TestClient) -> None:
     assert responses["api_error"].headers["cache-control"] == "no-store"
     assert responses["api_public"].headers["cache-control"] == "no-store"
     assert responses["script"].headers["content-type"].startswith("text/javascript")
+    for name in ("index", "script", "stylesheet"):
+        assert responses[name].headers["cross-origin-embedder-policy"] == "require-corp", name
     assert (
         responses["index"].headers["strict-transport-security"]
         == "max-age=63072000; includeSubDomains"
