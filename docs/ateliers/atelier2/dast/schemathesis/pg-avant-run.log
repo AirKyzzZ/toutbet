@@ -1,0 +1,107 @@
+Schemathesis v4.34.2
+━━━━━━━━━━━━━━━━━━━━
+
+ ✅  Loaded specification from http://127.0.0.1:8100/openapi.json (in 0.38s)
+
+     Base URL:         http://127.0.0.1:8100/
+     Specification:    Open API 3.1.0
+     Operations:       17 selected / 25 total
+
+ ✅  API capabilities:
+
+     Supports NULL byte in headers:                            ✘
+     Accepts backslash and control characters in URL paths:    ✓
+
+ ⏭   Examples (in 0.01s)
+
+     ⏭  17 skipped
+
+ ✅  Coverage (in 6.91s)
+
+     ✅ 17 passed
+
+ ❌  Fuzzing (in 136.97s)
+
+     ✅ 16 passed  ❌  1 failed
+
+ ✅  Stateful (in 96.03s)
+
+     Scenarios:    1830
+     API Links:    0 covered / 27 selected / 27 total
+
+     ✅ 1830 passed
+
+=================================== FAILURES ===================================
+_____________________________ POST /api/auth/login _____________________________
+1. Test Case ID: szCpEd
+
+- ST101 Server error
+
+[500] Internal Server Error:
+
+    `{"error":{"code":"INTERNAL_ERROR","message":"Erreur interne.","request_id":"54d6da1be52f4a41b3ff255c6ea1c062"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"password": "[Filtered]", "email": "\u0087\u00db\u0089@\u0014`\u00a5q\u00e1\u0007\u0000S-\u00ed\u00f5\u00de\ud8be\uddb0\u00d7"}' http://127.0.0.1:8100/api/auth/login
+
+    st replay szCpEd
+
+=================================== WARNINGS ===================================
+
+Authentication failed: 13 operations returned only 401/403 responses
+
+401 Unauthorized (13 operations):
+  - GET /api/bets
+  - POST /api/auth/refresh
+  - POST /api/bets
+  - POST /api/bets/{bet_id}/cancel
+  - POST /api/bets/{bet_id}/contests
+  - POST /api/bets/{bet_id}/invitations
+  - POST /api/bets/{bet_id}/result
+  - POST /api/bets/{bet_id}/stakes
+  - POST /api/deposits
+  - POST /api/invitations/accept
+  - POST /api/kyc/start
+  - POST /api/moderation/bets/{bet_id}/decision
+  - POST /api/withdrawals
+
+💡 Ensure valid authentication credentials are set via `--auth` or `-H`
+
+Schema validation mismatch: 2 operations mostly rejected generated data due to validation errors, indicating schema constraints don't match API validation
+
+  - POST /api/auth/register
+  - POST /api/webhooks/psp
+
+💡 Check your schema constraints - API validation may be stricter than documented
+
+=================================== SUMMARY ====================================
+
+API Operations:
+  Selected: 17/25
+  Tested: 17
+
+Test Phases:
+  ⏭  Examples
+  ✅ Coverage
+  ❌ Fuzzing
+  ✅ Stateful
+
+Failures:
+  ❌ ST101 Server error: 1
+
+For more information, run `st explain ST101`.
+
+Warnings:
+  ⚠️ Authentication failed: 13 operations returned only 401/403 responses
+  ⚠️ Schema validation mismatch: 2 operations mostly rejected generated data
+
+Test cases:
+  24680 generated, 1 found 1 unique failure
+
+Reports:
+  - JUnit: <scratch>/dast/out/schemathesis-pg/junit-20261125T145842Z.xml
+
+Seed: 42
+
+======================= 1 failure, 2 warnings in 240.02s =======================

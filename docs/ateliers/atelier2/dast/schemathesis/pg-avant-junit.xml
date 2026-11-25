@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites errors="0" failures="1" skipped="0" tests="18" time="356.923184">
+  <testsuite name="schemathesis" hostname="MacBook-Pro-4.local" errors="0" failures="1" skipped="0" tests="18" time="356.923184">
+    <testcase name="POST /api/auth/login" time="20.693413">
+      <failure type="failure" message="ST101">1. Test Case ID: szCpEd
+
+- ST101 Server error
+
+[500] Internal Server Error:
+
+    `{"error":{"code":"INTERNAL_ERROR","message":"Erreur interne.","request_id":"54d6da1be52f4a41b3ff255c6ea1c062"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"password": "[Filtered]", "email": "\u0087\u00db\u0089@\u0014`\u00a5q\u00e1\u0007\u0000S-\u00ed\u00f5\u00de\ud8be\uddb0\u00d7"}' http://127.0.0.1:8100/api/auth/login</failure>
+    </testcase>
+    <testcase name="POST /api/auth/refresh" time="0.295731" />
+    <testcase name="POST /api/auth/register" time="14.618605" />
+    <testcase name="POST /api/bets" time="19.959503" />
+    <testcase name="POST /api/auth/logout" time="0.527553" />
+    <testcase name="POST /api/invitations/accept" time="16.514778" />
+    <testcase name="POST /api/kyc/start" time="0.376141" />
+    <testcase name="POST /api/webhooks/psp" time="0.217608" />
+    <testcase name="POST /api/withdrawals" time="16.331266" />
+    <testcase name="GET /api/bets" time="29.633364" />
+    <testcase name="POST /api/deposits" time="21.079771" />
+    <testcase name="POST /api/bets/{bet_id}/cancel" time="20.088432" />
+    <testcase name="POST /api/bets/{bet_id}/contests" time="21.435542" />
+    <testcase name="POST /api/bets/{bet_id}/invitations" time="18.429339" />
+    <testcase name="POST /api/bets/{bet_id}/result" time="19.415078" />
+    <testcase name="POST /api/bets/{bet_id}/stakes" time="22.672084" />
+    <testcase name="POST /api/moderation/bets/{bet_id}/decision" time="21.247728" />
+    <testcase name="Stateful tests" time="93.387248" />
+  </testsuite>
+</testsuites>

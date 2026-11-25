@@ -1,0 +1,193 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/auth/login",
+ "headers": {
+  "Content-Type": "application/json"
+ },
+ "body": "{\"email\":\"alice@dast.test\",\"password\":\"wrong-FUZZ\"}",
+ "wordlists": [
+  "/v/nums.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "1",
+   "status": 401,
+   "length": 148,
+   "ms": 39
+  },
+  {
+   "FUZZ": "2",
+   "status": 401,
+   "length": 148,
+   "ms": 17
+  },
+  {
+   "FUZZ": "3",
+   "status": 401,
+   "length": 148,
+   "ms": 15
+  },
+  {
+   "FUZZ": "4",
+   "status": 401,
+   "length": 148,
+   "ms": 15
+  },
+  {
+   "FUZZ": "5",
+   "status": 401,
+   "length": 148,
+   "ms": 16
+  },
+  {
+   "FUZZ": "6",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "7",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "8",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "9",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "10",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "11",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "12",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "13",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "14",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "15",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "16",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "17",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "18",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "19",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "20",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "21",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "22",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "23",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "24",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "25",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "26",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "27",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "28",
+   "status": 429,
+   "length": 134,
+   "ms": 1
+  },
+  {
+   "FUZZ": "29",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "30",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  }
+ ]
+}

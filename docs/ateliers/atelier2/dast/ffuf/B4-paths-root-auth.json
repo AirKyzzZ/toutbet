@@ -1,0 +1,91 @@
+{
+ "method": "GET",
+ "url": "http://host.docker.internal:8100/FUZZ",
+ "headers": {
+  "Authorization": "Bearer <redacted>"
+ },
+ "body": "",
+ "wordlists": [
+  "/v/paths-all.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "api/bets/settle",
+   "status": 422,
+   "length": 226,
+   "ms": 25
+  },
+  {
+   "FUZZ": "app.css",
+   "status": 200,
+   "length": 2918,
+   "ms": 6
+  },
+  {
+   "FUZZ": "docs",
+   "status": 200,
+   "length": 1007,
+   "ms": 2
+  },
+  {
+   "FUZZ": "docs/oauth2-redirect",
+   "status": 200,
+   "length": 3012,
+   "ms": 3
+  },
+  {
+   "FUZZ": "healthz",
+   "status": 200,
+   "length": 15,
+   "ms": 3
+  },
+  {
+   "FUZZ": "icon.svg",
+   "status": 200,
+   "length": 243,
+   "ms": 3
+  },
+  {
+   "FUZZ": "index.html",
+   "status": 200,
+   "length": 1023,
+   "ms": 5
+  },
+  {
+   "FUZZ": "js/api.js",
+   "status": 200,
+   "length": 1637,
+   "ms": 6
+  },
+  {
+   "FUZZ": "js/main.js",
+   "status": 200,
+   "length": 3285,
+   "ms": 5
+  },
+  {
+   "FUZZ": "js/views/moderation.js",
+   "status": 200,
+   "length": 2467,
+   "ms": 7
+  },
+  {
+   "FUZZ": "manifest.webmanifest",
+   "status": 200,
+   "length": 308,
+   "ms": 7
+  },
+  {
+   "FUZZ": "openapi.json",
+   "status": 200,
+   "length": 26565,
+   "ms": 1
+  },
+  {
+   "FUZZ": "redoc",
+   "status": 200,
+   "length": 889,
+   "ms": 2
+  }
+ ]
+}

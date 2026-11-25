@@ -1,0 +1,86 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/bets",
+ "headers": {
+  "Authorization": "Bearer <redacted>",
+  "Content-Type": "application/json"
+ },
+ "body": "{\"title\":\"Pari closes brut\",\"event_starts_at\":\"2026-11-27T13:44:49+00:00\",\"closes_at\":FUZZ,\"bookie_commission_bps\":100}",
+ "wordlists": [
+  "/v/dates-raw.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "1795613718",
+   "status": 422,
+   "length": 155,
+   "ms": 13
+  },
+  {
+   "FUZZ": "1795613718.5",
+   "status": 422,
+   "length": 155,
+   "ms": 16
+  },
+  {
+   "FUZZ": "-62135596800",
+   "status": 422,
+   "length": 155,
+   "ms": 20
+  },
+  {
+   "FUZZ": "253402300799",
+   "status": 422,
+   "length": 155,
+   "ms": 23
+  },
+  {
+   "FUZZ": "253402300800",
+   "status": 422,
+   "length": 155,
+   "ms": 11
+  },
+  {
+   "FUZZ": "1e20",
+   "status": 422,
+   "length": 253,
+   "ms": 15
+  },
+  {
+   "FUZZ": "-1e20",
+   "status": 422,
+   "length": 254,
+   "ms": 15
+  },
+  {
+   "FUZZ": "1e309",
+   "status": 422,
+   "length": 253,
+   "ms": 18
+  },
+  {
+   "FUZZ": "null",
+   "status": 422,
+   "length": 198,
+   "ms": 14
+  },
+  {
+   "FUZZ": "true",
+   "status": 422,
+   "length": 198,
+   "ms": 13
+  },
+  {
+   "FUZZ": "[]",
+   "status": 422,
+   "length": 198,
+   "ms": 9
+  },
+  {
+   "FUZZ": "{}",
+   "status": 422,
+   "length": 198,
+   "ms": 9
+  }
+ ]
+}

@@ -1,0 +1,4 @@
+login, email connu, mauvais mot de passe n=100 statuts=[401] corps_distincts=1 mediane=   20.7 ms p90=   36.2 ms
+login, email inconnu                     n=100 statuts=[401] corps_distincts=1 mediane=   20.4 ms p90=   34.1 ms
+inscription, email nouveau               n= 50 statuts=[202] corps_distincts=1 mediane=   21.4 ms p90=   40.7 ms
+inscription, email deja pris             n= 50 statuts=[202] corps_distincts=1 mediane=   19.5 ms p90=   35.8 ms

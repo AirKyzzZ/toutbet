@@ -1,0 +1,1351 @@
+{
+	"@programName": "ZAP",
+	"@version": "2.17.0",
+	"@generated": "Wed, 25 Nov 2026 13:55:16",
+	"created": "2026-11-25T13:55:16.933776574Z",
+	"insights":[
+		{
+			"level": "Medium",
+			"reason": "Exceeded High",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.code.4xx",
+			"description": "Percentage of responses with status code 4xx",
+			"statistic": "98"
+		},
+		{
+			"level": "Low",
+			"reason": "Warning",
+			"site": "",
+			"key": "insight.log.warn",
+			"description": "ZAP warnings logged - see the zap.log file for details",
+			"statistic": "30"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.code.2xx",
+			"description": "Percentage of responses with status code 2xx",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.endpoint.ctype.application/json",
+			"description": "Percentage of endpoints with content type application/json",
+			"statistic": "90"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.endpoint.ctype.text/html",
+			"description": "Percentage of endpoints with content type text/html",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.endpoint.ctype.text/plain",
+			"description": "Percentage of endpoints with content type text/plain",
+			"statistic": "8"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.endpoint.method.GET",
+			"description": "Percentage of endpoints with method GET",
+			"statistic": "59"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.endpoint.method.POST",
+			"description": "Percentage of endpoints with method POST",
+			"statistic": "40"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.endpoint.total",
+			"description": "Count of total endpoints",
+			"statistic": "86"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8100",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "1"
+		}
+	],
+	"site":[ 
+		{
+			"@name": "http://host.docker.internal:8100",
+			"@host": "host.docker.internal",
+			"@port": "8100",
+			"@ssl": "false",
+			"alerts": [ 
+				{
+					"pluginid": "100001",
+					"alertRef": "100001",
+					"alert": "Unexpected Content-Type was returned",
+					"name": "Unexpected Content-Type was returned",
+					"riskcode": "1",
+					"confidence": "3",
+					"riskdesc": "Low (High)",
+					"desc": "<p>A Content-Type of text/html was returned by the server.</p><p>This is not one of the types expected to be returned by an API.</p><p>Raised by the 'Alert on Unexpected Content Types' script</p>",
+					"instances":[ 
+						{
+							"id": "118",
+							"uri": "http://host.docker.internal:8100",
+							"nodeName": "http:\/\/host.docker.internal:8100",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						},
+						{
+							"id": "2523",
+							"uri": "http://host.docker.internal:8100/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						}
+					],
+					"count": "2",
+					"systemic": false,
+					"solution": "",
+					"otherinfo": "",
+					"reference": "",
+					"cweid": "-1",
+					"wascid": "-1",
+					"sourceid": "150"
+				},
+				{
+					"pluginid": "100000",
+					"alertRef": "100000-1",
+					"alert": "A Client Error response code was returned by the server",
+					"name": "A Client Error response code was returned by the server",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>A response code of 404 was returned by the server.</p><p>This may indicate that the application is failing to handle unexpected input correctly.</p><p>Raised by the 'Alert on HTTP Response Code Error' script</p>",
+					"instances":[ 
+						{
+							"id": "18",
+							"uri": "http://host.docker.internal:8100/695942091055911351",
+							"nodeName": "http:\/\/host.docker.internal:8100\/695942091055911351",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "122",
+							"uri": "http://host.docker.internal:8100/api",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2525",
+							"uri": "http://host.docker.internal:8100/api/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "19",
+							"uri": "http://host.docker.internal:8100/api/2524296974298145790",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/2524296974298145790",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "129",
+							"uri": "http://host.docker.internal:8100/api/auth",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2526",
+							"uri": "http://host.docker.internal:8100/api/auth/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "20",
+							"uri": "http://host.docker.internal:8100/api/auth/645121718975326972",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/645121718975326972",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2875",
+							"uri": "http://host.docker.internal:8100/api/auth/actuator/health",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/actuator\/health",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "5",
+							"uri": "http://host.docker.internal:8100/api/bets?status=&role=&page=1&page_size=50",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets (page,page_size,role,status)",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2527",
+							"uri": "http://host.docker.internal:8100/api/bets/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "21",
+							"uri": "http://host.docker.internal:8100/api/bets/3035097598651020423",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/3035097598651020423",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "7",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2530",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "22",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/2659716899699191782",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/2659716899699191782",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "149",
+							"uri": "http://host.docker.internal:8100/api/deposits",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/deposits",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2532",
+							"uri": "http://host.docker.internal:8100/api/deposits/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/deposits\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "23",
+							"uri": "http://host.docker.internal:8100/api/deposits/1085206106031043325",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/deposits\/1085206106031043325",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "3",
+							"uri": "http://host.docker.internal:8100/api/deposits/deposit_id",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/deposits\/deposit_id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2533",
+							"uri": "http://host.docker.internal:8100/api/deposits/deposit_id/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/deposits\/deposit_id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "154",
+							"uri": "http://host.docker.internal:8100/api/invitations",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/invitations",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2535",
+							"uri": "http://host.docker.internal:8100/api/invitations/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/invitations\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "24",
+							"uri": "http://host.docker.internal:8100/api/invitations/114440411289547194",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/invitations\/114440411289547194",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "159",
+							"uri": "http://host.docker.internal:8100/api/kyc",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/kyc",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2538",
+							"uri": "http://host.docker.internal:8100/api/kyc/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/kyc\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "25",
+							"uri": "http://host.docker.internal:8100/api/kyc/8067506015483608075",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/kyc\/8067506015483608075",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2536",
+							"uri": "http://host.docker.internal:8100/api/me/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/me\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "164",
+							"uri": "http://host.docker.internal:8100/api/moderation",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2540",
+							"uri": "http://host.docker.internal:8100/api/moderation/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "26",
+							"uri": "http://host.docker.internal:8100/api/moderation/8416585083735783221",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/8416585083735783221",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "174",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2542",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "27",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets/247322193358344833",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets\/247322193358344833",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "403",
+							"otherinfo": ""
+						},
+						{
+							"id": "15",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets/bet_id",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets\/bet_id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "403",
+							"otherinfo": ""
+						},
+						{
+							"id": "2541",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets/bet_id/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets\/bet_id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "28",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets/bet_id/8680787058627649513",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets\/bet_id\/8680787058627649513",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "14",
+							"uri": "http://host.docker.internal:8100/api/moderation/disputes?page=1&page_size=50",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/disputes (page,page_size)",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "403",
+							"otherinfo": ""
+						},
+						{
+							"id": "2543",
+							"uri": "http://host.docker.internal:8100/api/moderation/disputes/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/disputes\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "178",
+							"uri": "http://host.docker.internal:8100/api/receipts",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/receipts",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2545",
+							"uri": "http://host.docker.internal:8100/api/receipts/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/receipts\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "29",
+							"uri": "http://host.docker.internal:8100/api/receipts/5651792097034277111",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/receipts\/5651792097034277111",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2547",
+							"uri": "http://host.docker.internal:8100/api/receipts/public-key/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/receipts\/public-key\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "184",
+							"uri": "http://host.docker.internal:8100/api/wallet?page=http%3A%2F%2Fwww.google.com%2F&page_size=50",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/wallet (page,page_size)",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2546",
+							"uri": "http://host.docker.internal:8100/api/wallet/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/wallet\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "185",
+							"uri": "http://host.docker.internal:8100/api/webhooks",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/webhooks",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2549",
+							"uri": "http://host.docker.internal:8100/api/webhooks/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/webhooks\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "30",
+							"uri": "http://host.docker.internal:8100/api/webhooks/3104314567965194357",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/webhooks\/3104314567965194357",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2550",
+							"uri": "http://host.docker.internal:8100/healthz/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/healthz\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "1",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "2364",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2507",
+							"uri": "http://host.docker.internal:8100/api/auth/login/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login\/ ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "0",
+							"uri": "http://host.docker.internal:8100/api/auth/register",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/register ()({email,display_name,password,birth_date})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2512",
+							"uri": "http://host.docker.internal:8100/api/auth/register/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/register\/ ()({email,display_name,password,birth_date})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "6",
+							"uri": "http://host.docker.internal:8100/api/bets",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets ()({\"title\":\"John Doe\",\"description\":Zaproxy alias impedit expedita quisquam pariatur exercitationem. Nemo rerum eveniet dolores rem quia dignissimos.,\"event_starts_at\":\"1970-01-01T00:00:00.001Z\",\"closes_at\":\"1970-01-01T00:00:00.001Z\",\"bookie_commission_bps\":10,\"min_stake_cents\":10})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2513",
+							"uri": "http://host.docker.internal:8100/api/bets/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/ ()({\"title\":\"John Doe\",\"description\":Zaproxy alias impedit expedita quisquam pariatur exercitationem. Nemo rerum eveniet dolores rem quia dignissimos.,\"event_starts_at\":\"1970-01-01T00:00:00.001Z\",\"closes_at\":\"1970-01-01T00:00:00.001Z\",\"bookie_commission_bps\":10,\"min_stake_cents\":10})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "8",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/cancel",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/cancel",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2508",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/cancel/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/cancel\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "10",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/contests",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/contests ()({reason})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2509",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/contests/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/contests\/ ()({reason})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "11",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/invitations",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/invitations",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2511",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/invitations/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/invitations\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "9",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/result",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/result ()({outcome,note})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2510",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/result/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/result\/ ()({outcome,note})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "13",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/stakes",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/stakes ()({outcome,amount_cents})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2514",
+							"uri": "http://host.docker.internal:8100/api/bets/bet_id/stakes/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/bets\/bet_id\/stakes\/ ()({outcome,amount_cents})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "2",
+							"uri": "http://host.docker.internal:8100/api/deposits",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/deposits ()({amount_cents})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2515",
+							"uri": "http://host.docker.internal:8100/api/deposits/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/deposits\/ ()({amount_cents})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "12",
+							"uri": "http://host.docker.internal:8100/api/invitations/accept",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/invitations\/accept ()({token})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2517",
+							"uri": "http://host.docker.internal:8100/api/invitations/accept/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/invitations\/accept\/ ()({token})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "2516",
+							"uri": "http://host.docker.internal:8100/api/kyc/start/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/kyc\/start\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "16",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets/bet_id/decision",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets\/bet_id\/decision ()({outcome,justification})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "403",
+							"otherinfo": ""
+						},
+						{
+							"id": "2519",
+							"uri": "http://host.docker.internal:8100/api/moderation/bets/bet_id/decision/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/moderation\/bets\/bet_id\/decision\/ ()({outcome,justification})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "17",
+							"uri": "http://host.docker.internal:8100/api/webhooks/psp",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/webhooks\/psp",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "2520",
+							"uri": "http://host.docker.internal:8100/api/webhooks/psp/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/webhooks\/psp\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "4",
+							"uri": "http://host.docker.internal:8100/api/withdrawals",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/withdrawals ()({\"amount_cents\":10,\"password\":ZAP})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "422",
+							"otherinfo": ""
+						},
+						{
+							"id": "2518",
+							"uri": "http://host.docker.internal:8100/api/withdrawals/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/withdrawals\/ ()({\"amount_cents\":10,\"password\":ZAP})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "1878",
+							"uri": "http://host.docker.internal:8100/computeMetadata/v1/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/computeMetadata\/v1\/ ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1876",
+							"uri": "http://host.docker.internal:8100/latest/meta-data/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/latest\/meta-data\/ ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1896",
+							"uri": "http://host.docker.internal:8100/metadata/instance",
+							"nodeName": "http:\/\/host.docker.internal:8100\/metadata\/instance ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1897",
+							"uri": "http://host.docker.internal:8100/metadata/v1",
+							"nodeName": "http:\/\/host.docker.internal:8100\/metadata\/v1 ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1881",
+							"uri": "http://host.docker.internal:8100/opc/v1/instance/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/opc\/v1\/instance\/ ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1885",
+							"uri": "http://host.docker.internal:8100/opc/v2/instance/",
+							"nodeName": "http:\/\/host.docker.internal:8100\/opc\/v2\/instance\/ ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1900",
+							"uri": "http://host.docker.internal:8100/openstack/latest/meta_data.json",
+							"nodeName": "http:\/\/host.docker.internal:8100\/openstack\/latest\/meta_data.json ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						}
+					],
+					"count": "82",
+					"systemic": false,
+					"solution": "",
+					"otherinfo": "",
+					"reference": "",
+					"cweid": "388",
+					"wascid": "20",
+					"sourceid": "37"
+				},
+				{
+					"pluginid": "10111",
+					"alertRef": "10111",
+					"alert": "Authentication Request Identified",
+					"name": "Authentication Request Identified",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>The given request has been identified as an authentication request. The 'Other Info' field contains a set of key=value lines which identify any relevant fields. If the request is in a context which has an Authentication Method set to \"Auto-Detect\" then this rule will change the authentication to match the request identified.</p>",
+					"instances":[ 
+						{
+							"id": "248",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "email",
+							"attack": "",
+							"evidence": "password",
+							"otherinfo": "userParam=email\nuserValue=zaproxy@example.com\npasswordParam=password"
+						}
+					],
+					"count": "1",
+					"systemic": false,
+					"solution": "<p>This is an informational alert rather than a vulnerability and so there is nothing to fix.</p>",
+					"otherinfo": "<p>userParam=email</p><p>userValue=zaproxy@example.com</p><p>passwordParam=password</p>",
+					"reference": "<p>https://www.zaproxy.org/docs/desktop/addons/authentication-helper/auth-req-id/</p>",
+					"cweid": "-1",
+					"wascid": "-1",
+					"sourceid": "6"
+				},
+				{
+					"pluginid": "10094",
+					"alertRef": "10094-3",
+					"alert": "Base64 Disclosure",
+					"name": "Base64 Disclosure",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>Base64 encoded data was disclosed by the application/web server. Note: in the interests of performance not all base64 strings in the response were analyzed individually, the entire response should be looked at by the analyst/security team/developer(s).</p>",
+					"instances":[ 
+						{
+							"id": "538",
+							"uri": "http://host.docker.internal:8100/api/receipts/public-key",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/receipts\/public-key",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "quCtxAvyTV6L0mgrLO8ZnbEpUH40jck5POqyFuKPmcE",
+							"otherinfo": "\uFFFD\uFFFD\uFFFD\\x000b\uFFFDM^\uFFFD\uFFFDh+,\uFFFD\\x0019\uFFFD\uFFFD)P~4\uFFFD\uFFFD9<\uFFFD\\x0016\u23D9\uFFFD"
+						}
+					],
+					"count": "1",
+					"systemic": false,
+					"solution": "<p>Manually confirm that the Base64 data does not leak sensitive information, and that the data cannot be aggregated/used to exploit other vulnerabilities.</p>",
+					"otherinfo": "<p>\uFFFD\uFFFD\uFFFD\\x000b\uFFFDM^\uFFFD\uFFFDh+,\uFFFD\\x0019\uFFFD\uFFFD)P~4\uFFFD\uFFFD9<\uFFFD\\x0016\u23D9\uFFFD</p>",
+					"reference": "<p>https://projects.webappsec.org/w/page/13246936/Information%20Leakage</p>",
+					"cweid": "319",
+					"wascid": "13",
+					"sourceid": "35"
+				},
+				{
+					"pluginid": "10049",
+					"alertRef": "10049-1",
+					"alert": "Non-Storable Content",
+					"name": "Non-Storable Content",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The response contents are not storable by caching components such as proxy servers. If the response does not contain sensitive, personal or user-specific information, it may benefit from being stored and cached, to improve performance.</p>",
+					"instances":[ 
+						{
+							"id": "268",
+							"uri": "http://host.docker.internal:8100/api/me",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/me",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "318",
+							"uri": "http://host.docker.internal:8100/api/wallet?page=1&page_size=50",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/wallet (page,page_size)",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "269",
+							"uri": "http://host.docker.internal:8100/healthz",
+							"nodeName": "http:\/\/host.docker.internal:8100\/healthz",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "authorization:",
+							"otherinfo": ""
+						},
+						{
+							"id": "270",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "271",
+							"uri": "http://host.docker.internal:8100/api/auth/register",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/register ()({email,display_name,password,birth_date})",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>The content may be marked as storable by ensuring that the following conditions are satisfied:</p><p>The request method must be understood by the cache and defined as being cacheable (\"GET\", \"HEAD\", and \"POST\" are currently defined as cacheable)</p><p>The response status code must be understood by the cache (one of the 1XX, 2XX, 3XX, 4XX, or 5XX response classes are generally understood)</p><p>The \"no-store\" cache directive must not appear in the request or response header fields</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"private\" response directive must not appear in the response</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"Authorization\" header field must not appear in the request, unless the response explicitly allows it (using one of the \"must-revalidate\", \"public\", or \"s-maxage\" Cache-Control response directives)</p><p>In addition to the conditions above, at least one of the following conditions must also be satisfied by the response:</p><p>It must contain an \"Expires\" header field</p><p>It must contain a \"max-age\" response directive</p><p>For \"shared\" caches such as \"proxy\" caches, it must contain a \"s-maxage\" response directive</p><p>It must contain a \"Cache Control Extension\" that allows it to be cached</p><p>It must have a status code that is defined as cacheable by default (200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501).</p>",
+					"otherinfo": "",
+					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
+					"cweid": "524",
+					"wascid": "13",
+					"sourceid": "7"
+				},
+				{
+					"pluginid": "90005",
+					"alertRef": "90005-3",
+					"alert": "Sec-Fetch-Dest Header is Missing",
+					"name": "Sec-Fetch-Dest Header is Missing",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>Specifies how and where the data would be used. For instance, if the value is audio, then the requested resource must be audio data and not any other type of resource.</p>",
+					"instances":[ 
+						{
+							"id": "288",
+							"uri": "http://host.docker.internal:8100/api/me",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/me",
+							"method": "GET",
+							"param": "Sec-Fetch-Dest",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "283",
+							"uri": "http://host.docker.internal:8100/healthz",
+							"nodeName": "http:\/\/host.docker.internal:8100\/healthz",
+							"method": "GET",
+							"param": "Sec-Fetch-Dest",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "281",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "Sec-Fetch-Dest",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "282",
+							"uri": "http://host.docker.internal:8100/api/auth/register",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/register ()({email,display_name,password,birth_date})",
+							"method": "POST",
+							"param": "Sec-Fetch-Dest",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "4",
+					"systemic": false,
+					"solution": "<p>Ensure that Sec-Fetch-Dest header is included in request headers.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Dest</p>",
+					"cweid": "352",
+					"wascid": "9",
+					"sourceid": "7"
+				},
+				{
+					"pluginid": "90005",
+					"alertRef": "90005-2",
+					"alert": "Sec-Fetch-Mode Header is Missing",
+					"name": "Sec-Fetch-Mode Header is Missing",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>Allows to differentiate between requests for navigating between HTML pages and requests for loading resources like images, audio etc.</p>",
+					"instances":[ 
+						{
+							"id": "279",
+							"uri": "http://host.docker.internal:8100/api/me",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/me",
+							"method": "GET",
+							"param": "Sec-Fetch-Mode",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "278",
+							"uri": "http://host.docker.internal:8100/healthz",
+							"nodeName": "http:\/\/host.docker.internal:8100\/healthz",
+							"method": "GET",
+							"param": "Sec-Fetch-Mode",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "280",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "Sec-Fetch-Mode",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "277",
+							"uri": "http://host.docker.internal:8100/api/auth/register",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/register ()({email,display_name,password,birth_date})",
+							"method": "POST",
+							"param": "Sec-Fetch-Mode",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "4",
+					"systemic": false,
+					"solution": "<p>Ensure that Sec-Fetch-Mode header is included in request headers.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Mode</p>",
+					"cweid": "352",
+					"wascid": "9",
+					"sourceid": "7"
+				},
+				{
+					"pluginid": "90005",
+					"alertRef": "90005-1",
+					"alert": "Sec-Fetch-Site Header is Missing",
+					"name": "Sec-Fetch-Site Header is Missing",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>Specifies the relationship between request initiator's origin and target's origin.</p>",
+					"instances":[ 
+						{
+							"id": "273",
+							"uri": "http://host.docker.internal:8100/api/me",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/me",
+							"method": "GET",
+							"param": "Sec-Fetch-Site",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "275",
+							"uri": "http://host.docker.internal:8100/healthz",
+							"nodeName": "http:\/\/host.docker.internal:8100\/healthz",
+							"method": "GET",
+							"param": "Sec-Fetch-Site",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "276",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "Sec-Fetch-Site",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "274",
+							"uri": "http://host.docker.internal:8100/api/auth/register",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/register ()({email,display_name,password,birth_date})",
+							"method": "POST",
+							"param": "Sec-Fetch-Site",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "4",
+					"systemic": false,
+					"solution": "<p>Ensure that Sec-Fetch-Site header is included in request headers.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-Site</p>",
+					"cweid": "352",
+					"wascid": "9",
+					"sourceid": "7"
+				},
+				{
+					"pluginid": "90005",
+					"alertRef": "90005-4",
+					"alert": "Sec-Fetch-User Header is Missing",
+					"name": "Sec-Fetch-User Header is Missing",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>Specifies if a navigation request was initiated by a user.</p>",
+					"instances":[ 
+						{
+							"id": "289",
+							"uri": "http://host.docker.internal:8100/api/me",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/me",
+							"method": "GET",
+							"param": "Sec-Fetch-User",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "284",
+							"uri": "http://host.docker.internal:8100/healthz",
+							"nodeName": "http:\/\/host.docker.internal:8100\/healthz",
+							"method": "GET",
+							"param": "Sec-Fetch-User",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "285",
+							"uri": "http://host.docker.internal:8100/api/auth/login",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/login ()({email,password})",
+							"method": "POST",
+							"param": "Sec-Fetch-User",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "286",
+							"uri": "http://host.docker.internal:8100/api/auth/register",
+							"nodeName": "http:\/\/host.docker.internal:8100\/api\/auth\/register ()({email,display_name,password,birth_date})",
+							"method": "POST",
+							"param": "Sec-Fetch-User",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "4",
+					"systemic": false,
+					"solution": "<p>Ensure that Sec-Fetch-User header is included in user initiated requests.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-Fetch-User</p>",
+					"cweid": "352",
+					"wascid": "9",
+					"sourceid": "7"
+				}
+			]
+		}
+	],
+	"sequences":[
+	]
+
+}

@@ -1,0 +1,107 @@
+## page d'accueil
+HTTP/1.1 200 OK
+content-type: text/html; charset=utf-8;last-modified: Wed, 25 Nov 2026 12:09:44 GMT;etag: "47b7c4d7f1ebc593ec19bba47b44a390";x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14532d">
+    <title>ToutBet'</title>
+    <link rel="stylesheet" href="/app.css">
+    <link rel="manifest" href="/manife
+
+## doc swagger et openapi (ENV=dev seulement)
+/docs : 200 text/html; charset=utf-8 1007 octets
+/openapi.json : 200 application/json 26565 octets
+
+## route API inconnue
+HTTP/1.1 404 Not Found
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"…"}}
+
+## route protégée sans jeton
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer;content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"…"}}
+
+## jeton invalide
+HTTP/1.1 401 Unauthorized
+www-authenticate: Bearer;content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"…"}}
+
+## méthode non prévue
+HTTP/1.1 405 Method Not Allowed
+allow: GET, HEAD;content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"…"}}
+
+## GET sur une route POST
+HTTP/1.1 404 Not Found
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"…"}}
+
+## HEAD sur l'API
+HTTP/1.1 404 Not Found
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+
+
+## TRACE
+HTTP/1.1 405 Method Not Allowed
+allow: GET, HEAD;content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"…"}}
+
+## préflight CORS origine inconnue
+HTTP/1.1 400 Bad Request
+access-control-allow-methods: GET, POST;access-control-max-age: 600;access-control-allow-headers: Accept, Accept-Language, Authorization, Content-Language, Content-Type, Idempotency-Key;content-type: text/plain; charset=utf-8;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+Disallowed CORS origin
+
+## UUID invalide (chemin)
+HTTP/1.1 422 Unprocessable Content
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"VALIDATION_ERROR","message":"Données invalides.","request_id":"…","fields":[{"loc":["path","bet_id"],"msg":"Input should be a valid UUID"}]}}
+
+## filtres invalides
+HTTP/1.1 422 Unprocessable Content
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"VALIDATION_ERROR","message":"Données invalides.","request_id":"…","fields":[{"loc":["query","status"],"msg":"Input should be 'open', 'closed', 'result_proposed', 'disputed', 'settled' or 'cancelled'"},{"loc":["query","page"],"msg":"Input should be gr
+
+## champ en trop + mauvais types
+HTTP/1.1 422 Unprocessable Content
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"VALIDATION_ERROR","message":"Données invalides.","request_id":"…","fields":[{"loc":["body","title"],"msg":"String should have at least 5 characters"},{"loc":["body","event_starts_at"],"msg":"Field required"},{"loc":["body","closes_at"],"msg":"Field r
+
+## JSON tronqué
+HTTP/1.1 422 Unprocessable Content
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"VALIDATION_ERROR","message":"Données invalides.","request_id":"…","fields":[{"loc":["body","9"],"msg":"JSON decode error"}]}}
+
+## JSON imbriqué 30000 niveaux
+HTTP/1.1 400 Bad Request
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"…"}}
+
+## corps de 70 Ko
+HTTP/1.1 413 Content Too Large
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;cache-control: no-store;
+{"error":{"code":"PAYLOAD_TOO_LARGE","message":"Requête trop volumineuse.","request_id":"…"}}
+
+## Content-Length non numérique
+HTTP/1.1 400 Bad Request
+content-type: text/plain; charset=utf-8;
+Invalid HTTP request received.
+
+## Host non autorisé
+HTTP/1.1 400 Bad Request
+content-type: text/plain; charset=utf-8;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;
+Invalid host header
+
+## traversée ../.env
+HTTP/1.1 404 Not Found
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;
+{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"…"}}
+
+## traversée encodée
+HTTP/1.1 404 Not Found
+content-type: application/json;x-request-id: <uuid hex>;cross-origin-embedder-policy: require-corp;
+{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"…"}}
+

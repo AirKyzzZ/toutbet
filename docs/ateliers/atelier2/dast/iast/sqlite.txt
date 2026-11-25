@@ -1,0 +1,13 @@
+requests traced: 64401, with IAST enabled: 64401
+top resources: [('POST ', 35108), ('GET ', 29208), ('TRACE ', 12), ('QUERY ', 12), ('PUT ', 12), ('PATCH ', 12), ('OPTIONS ', 12), ('DELETE ', 12), ('GET /openapi.json', 4), ('GET /api/bets/{bet_id}', 2), ('GET /redoc', 2), ('GET /docs', 2), ('GET /docs/oauth2-redirect', 2), ('GET /api/deposits/{deposit_id}', 1)]
+  _dd.iast.enabled: 64401
+  _dd.iast.telemetry.executed.sink.code_injection: 1
+  _dd.iast.telemetry.executed.sink.sql_injection: 594322
+  _dd.iast.telemetry.executed.sink.weak_hash: 6006
+  _dd.iast.telemetry.executed.source.http_request_body: 56876
+  _dd.iast.telemetry.executed.source.http_request_header: 338041
+  _dd.iast.telemetry.executed.source.http_request_parameter: 24745
+  _dd.iast.telemetry.executed.source.http_request_path: 3756
+  _dd.iast.telemetry.executed.source.http_request_path_parameter: 26529
+  _dd.iast.telemetry.request.tainted: 279544
+vulnerabilities: 0

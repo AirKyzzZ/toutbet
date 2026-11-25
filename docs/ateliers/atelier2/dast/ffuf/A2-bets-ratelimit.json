@@ -1,0 +1,194 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/bets",
+ "headers": {
+  "Authorization": "Bearer <redacted>",
+  "Content-Type": "application/json"
+ },
+ "body": "{\"title\":\"Pari rate limit FUZZ\",\"event_starts_at\":\"2026-11-27T13:33:34+00:00\",\"closes_at\":\"2026-11-26T13:33:34+00:00\",\"bookie_commission_bps\":100}",
+ "wordlists": [
+  "/v/nums.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "1",
+   "status": 201,
+   "length": 541,
+   "ms": 17
+  },
+  {
+   "FUZZ": "2",
+   "status": 201,
+   "length": 541,
+   "ms": 4
+  },
+  {
+   "FUZZ": "3",
+   "status": 201,
+   "length": 541,
+   "ms": 3
+  },
+  {
+   "FUZZ": "4",
+   "status": 201,
+   "length": 541,
+   "ms": 3
+  },
+  {
+   "FUZZ": "5",
+   "status": 201,
+   "length": 541,
+   "ms": 3
+  },
+  {
+   "FUZZ": "6",
+   "status": 201,
+   "length": 541,
+   "ms": 3
+  },
+  {
+   "FUZZ": "7",
+   "status": 201,
+   "length": 541,
+   "ms": 3
+  },
+  {
+   "FUZZ": "8",
+   "status": 201,
+   "length": 541,
+   "ms": 3
+  },
+  {
+   "FUZZ": "9",
+   "status": 201,
+   "length": 541,
+   "ms": 3
+  },
+  {
+   "FUZZ": "10",
+   "status": 201,
+   "length": 542,
+   "ms": 4
+  },
+  {
+   "FUZZ": "11",
+   "status": 201,
+   "length": 542,
+   "ms": 5
+  },
+  {
+   "FUZZ": "12",
+   "status": 201,
+   "length": 542,
+   "ms": 4
+  },
+  {
+   "FUZZ": "13",
+   "status": 201,
+   "length": 542,
+   "ms": 3
+  },
+  {
+   "FUZZ": "14",
+   "status": 201,
+   "length": 542,
+   "ms": 3
+  },
+  {
+   "FUZZ": "15",
+   "status": 201,
+   "length": 542,
+   "ms": 3
+  },
+  {
+   "FUZZ": "16",
+   "status": 201,
+   "length": 542,
+   "ms": 3
+  },
+  {
+   "FUZZ": "17",
+   "status": 201,
+   "length": 542,
+   "ms": 3
+  },
+  {
+   "FUZZ": "18",
+   "status": 201,
+   "length": 542,
+   "ms": 3
+  },
+  {
+   "FUZZ": "19",
+   "status": 201,
+   "length": 542,
+   "ms": 3
+  },
+  {
+   "FUZZ": "20",
+   "status": 201,
+   "length": 542,
+   "ms": 2
+  },
+  {
+   "FUZZ": "21",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "22",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "23",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "24",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "25",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "26",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "27",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "28",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "29",
+   "status": 429,
+   "length": 134,
+   "ms": 2
+  },
+  {
+   "FUZZ": "30",
+   "status": 429,
+   "length": 134,
+   "ms": 3
+  }
+ ]
+}

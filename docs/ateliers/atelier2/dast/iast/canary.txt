@@ -1,0 +1,9 @@
+requests traced: 1, with IAST enabled: 1
+  _dd.iast.telemetry.executed.sink.code_injection: 1
+  _dd.iast.telemetry.executed.sink.sql_injection: 1
+  _dd.iast.telemetry.executed.sink.weak_hash: 1
+  _dd.iast.telemetry.executed.source.http_request_parameter: 1
+  _dd.iast.telemetry.request.tainted: 3
+vulnerabilities: 2
+  1 ('WEAK_HASH', 'canary_app.py', 13) {"value": "md5"}
+  1 ('SQL_INJECTION', 'canary_app.py', 12) {"valueParts": [{"value": "SELECT '"}, {"redacted": true, "source": 0, "pattern": "abc"}, {"source": 0, "value": "' OR '"}, {"redacted": true, "source": 0, "pattern": "j"}, {"source": 0, "value": "'='

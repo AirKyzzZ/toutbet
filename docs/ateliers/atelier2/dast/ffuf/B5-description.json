@@ -1,0 +1,206 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/bets",
+ "headers": {
+  "Authorization": "Bearer <redacted>",
+  "Content-Type": "application/json"
+ },
+ "body": "{\"title\":\"Pari description\",\"description\":\"FUZZ\",\"event_starts_at\":\"2026-11-27T13:44:49+00:00\",\"closes_at\":\"2026-11-26T13:44:49+00:00\",\"bookie_commission_bps\":100}",
+ "wordlists": [
+  "/v/strings.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "Pari normal",
+   "status": 201,
+   "length": 549,
+   "ms": 265
+  },
+  {
+   "FUZZ": "<script>alert(1)</script>",
+   "status": 201,
+   "length": 563,
+   "ms": 19
+  },
+  {
+   "FUZZ": "<img src=x onerror=alert(1)>",
+   "status": 201,
+   "length": 566,
+   "ms": 35
+  },
+  {
+   "FUZZ": "' OR '1'='1",
+   "status": 201,
+   "length": 549,
+   "ms": 60
+  },
+  {
+   "FUZZ": "'; DROP TABLE bets;--",
+   "status": 201,
+   "length": 559,
+   "ms": 21
+  },
+  {
+   "FUZZ": "\\\" OR \\\"1\\\"=\\\"1",
+   "status": 201,
+   "length": 553,
+   "ms": 11
+  },
+  {
+   "FUZZ": "{{7*7}}",
+   "status": 201,
+   "length": 545,
+   "ms": 30
+  },
+  {
+   "FUZZ": "${7*7}",
+   "status": 201,
+   "length": 544,
+   "ms": 53
+  },
+  {
+   "FUZZ": "%s%s%s%s%n",
+   "status": 201,
+   "length": 548,
+   "ms": 9
+  },
+  {
+   "FUZZ": "../../../../etc/passwd",
+   "status": 201,
+   "length": 560,
+   "ms": 21
+  },
+  {
+   "FUZZ": "abc\\u0000def",
+   "status": 201,
+   "length": 550,
+   "ms": 24
+  },
+  {
+   "FUZZ": "\\u0000\\u0000\\u0000\\u0000\\u0000",
+   "status": 201,
+   "length": 568,
+   "ms": 42
+  },
+  {
+   "FUZZ": "abc\\ud800def",
+   "status": 422,
+   "length": 244,
+   "ms": 17
+  },
+  {
+   "FUZZ": "abc\\udfffdef",
+   "status": 422,
+   "length": 244,
+   "ms": 12
+  },
+  {
+   "FUZZ": "\\ud83d\\ude00\\ud83d\\ude00\\ud83d\\ude00",
+   "status": 201,
+   "length": 550,
+   "ms": 105
+  },
+  {
+   "FUZZ": "\\u202eevil\\u202d title",
+   "status": 201,
+   "length": 554,
+   "ms": 21
+  },
+  {
+   "FUZZ": "\\u200b\\u200b\\u200b\\u200b\\u200b",
+   "status": 201,
+   "length": 553,
+   "ms": 92
+  },
+  {
+   "FUZZ": "     ",
+   "status": 201,
+   "length": 543,
+   "ms": 11
+  },
+  {
+   "FUZZ": "\\t\\t\\t\\t\\t",
+   "status": 201,
+   "length": 548,
+   "ms": 18
+  },
+  {
+   "FUZZ": "line1\\r\\nX-Injected: 1",
+   "status": 201,
+   "length": 560,
+   "ms": 38
+  },
+  {
+   "FUZZ": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "status": 201,
+   "length": 678,
+   "ms": 9
+  },
+  {
+   "FUZZ": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "status": 201,
+   "length": 679,
+   "ms": 10
+  },
+  {
+   "FUZZ": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+   "status": 201,
+   "length": 818,
+   "ms": 16
+  },
+  {
+   "FUZZ": "\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9\\u00e9",
+   "status": 201,
+   "length": 820,
+   "ms": 14
+  },
+  {
+   "FUZZ": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+   "status": 201,
+   "length": 1098,
+   "ms": 15
+  },
+  {
+   "FUZZ": "\\\\x00\\\\x00\\\\x00",
+   "status": 201,
+   "length": 553,
+   "ms": 40
+  },
+  {
+   "FUZZ": "null",
+   "status": 201,
+   "length": 542,
+   "ms": 18
+  },
+  {
+   "FUZZ": "SELECT * FROM wallets",
+   "status": 201,
+   "length": 559,
+   "ms": 24
+  },
+  {
+   "FUZZ": "1;sleep(5)",
+   "status": 201,
+   "length": 548,
+   "ms": 73
+  },
+  {
+   "FUZZ": "`id`",
+   "status": 201,
+   "length": 542,
+   "ms": 26
+  },
+  {
+   "FUZZ": "$(id)",
+   "status": 201,
+   "length": 543,
+   "ms": 29
+  },
+  {
+   "FUZZ": "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4In0.",
+   "status": 201,
+   "length": 574,
+   "ms": 14
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+requests traced: 37236, with IAST enabled: 37236
+  _dd.iast.telemetry.executed.sink.code_injection: 2
+  _dd.iast.telemetry.executed.sink.sql_injection: 191298
+  _dd.iast.telemetry.executed.sink.weak_hash: 1931
+  _dd.iast.telemetry.executed.source.http_request_body: 50914
+  _dd.iast.telemetry.executed.source.http_request_header: 206653
+  _dd.iast.telemetry.executed.source.http_request_parameter: 4938
+  _dd.iast.telemetry.executed.source.http_request_path: 1059
+  _dd.iast.telemetry.executed.source.http_request_path_parameter: 19113
+  _dd.iast.telemetry.request.tainted: 196995
+vulnerabilities: 0

@@ -1,0 +1,158 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/bets",
+ "headers": {
+  "Authorization": "Bearer <redacted>",
+  "Content-Type": "application/json"
+ },
+ "body": "{\"title\":\"Pari closes\",\"event_starts_at\":\"2026-11-27T14:03:34+00:00\",\"closes_at\":\"FUZZ\",\"bookie_commission_bps\":100}",
+ "wordlists": [
+  "/v/dates.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "2026-12-05T12:00:00+00:00",
+   "status": 422,
+   "length": 154,
+   "ms": 77
+  },
+  {
+   "FUZZ": "9999-12-31T23:59:59-23:59",
+   "status": 422,
+   "length": 233,
+   "ms": 79
+  },
+  {
+   "FUZZ": "9999-12-31T23:59:59-12:00",
+   "status": 422,
+   "length": 233,
+   "ms": 112
+  },
+  {
+   "FUZZ": "0001-01-01T00:00:00+23:59",
+   "status": 422,
+   "length": 233,
+   "ms": 109
+  },
+  {
+   "FUZZ": "0001-01-01T00:00:00+14:00",
+   "status": 422,
+   "length": 233,
+   "ms": 80
+  },
+  {
+   "FUZZ": "0001-01-01T00:00:00Z",
+   "status": 422,
+   "length": 155,
+   "ms": 56
+  },
+  {
+   "FUZZ": "9999-12-31T23:59:59Z",
+   "status": 422,
+   "length": 154,
+   "ms": 48
+  },
+  {
+   "FUZZ": "2026-12-05T12:00:00",
+   "status": 422,
+   "length": 197,
+   "ms": 47
+  },
+  {
+   "FUZZ": "2026-12-05",
+   "status": 422,
+   "length": 197,
+   "ms": 41
+  },
+  {
+   "FUZZ": "2026-13-01T00:00:00Z",
+   "status": 422,
+   "length": 253,
+   "ms": 43
+  },
+  {
+   "FUZZ": "2026-02-30T00:00:00Z",
+   "status": 422,
+   "length": 243,
+   "ms": 33
+  },
+  {
+   "FUZZ": "2026-12-05T25:00:00Z",
+   "status": 422,
+   "length": 259,
+   "ms": 34
+  },
+  {
+   "FUZZ": "2026-12-05T12:00:00+25:00",
+   "status": 422,
+   "length": 259,
+   "ms": 39
+  },
+  {
+   "FUZZ": "2026-12-05T12:00:00+24:00",
+   "status": 422,
+   "length": 259,
+   "ms": 41
+  },
+  {
+   "FUZZ": "2026-12-05T12:00:00.999999999Z",
+   "status": 422,
+   "length": 154,
+   "ms": 46
+  },
+  {
+   "FUZZ": "+002026-12-05T12:00:00Z",
+   "status": 422,
+   "length": 233,
+   "ms": 33
+  },
+  {
+   "FUZZ": "2026-12-05 12:00:00Z",
+   "status": 422,
+   "length": 154,
+   "ms": 82
+  },
+  {
+   "FUZZ": "2026-W49-4",
+   "status": 422,
+   "length": 234,
+   "ms": 69
+  },
+  {
+   "FUZZ": "1795613718",
+   "status": 422,
+   "length": 155,
+   "ms": 70
+  },
+  {
+   "FUZZ": "now",
+   "status": 422,
+   "length": 226,
+   "ms": 76
+  },
+  {
+   "FUZZ": "",
+   "status": 422,
+   "length": 226,
+   "ms": 74
+  },
+  {
+   "FUZZ": "null",
+   "status": 422,
+   "length": 226,
+   "ms": 52
+  },
+  {
+   "FUZZ": "2026-12-05T12:00:00Z' OR '1'='1",
+   "status": 422,
+   "length": 259,
+   "ms": 50
+  },
+  {
+   "FUZZ": "2026-12-05T12:00:00\\u0000Z",
+   "status": 422,
+   "length": 259,
+   "ms": 41
+  }
+ ]
+}

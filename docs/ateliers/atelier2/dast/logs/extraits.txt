@@ -1,0 +1,21 @@
+# Avant correction (app lancée avec --no-access-log) : lignes uvicorn.access quand même présentes
+{"ts": "2026-11-25T13:30:59.634+00:00", "level": "info", "event": "log", "logger": "uvicorn.access", "request_id": "a78d215b70544d0db262000635d3f0c2", "message": "127.0.0.1:50289 - \"GET /healthz HTTP/1.1\" 200"}
+{"ts": "2026-11-25T13:31:00.245+00:00", "level": "info", "event": "log", "logger": "uvicorn.access", "request_id": "a00eacaa250f4d54a2a2367761ed7980", "message": "127.0.0.1:50291 - \"GET /healthz HTTP/1.1\" 200"}
+{"ts": "2026-11-25T13:31:26.278+00:00", "level": "info", "event": "log", "logger": "uvicorn.access", "request_id": "22d3823020c94eef8a9deb4b93a2803b", "message": "127.0.0.1:51138 - \"GET /healthz?x=***&mail=b***@example.org HTTP/1.1\" 200"}
+
+# Après correction : lignes uvicorn.access dans le log de la dernière exécution
+0
+
+# Événements de sécurité vus pendant les scans (un exemple de chaque)
+{"ts": "2026-11-25T13:34:34.689+00:00", "level": "info", "event": "auth.login_failed", "logger": "toutbet", "request_id": "d0a87d2ce82d4cff82c4c80e34e59d02", "user_id": "70499e28-df55-4b63-953d-65f44c6a4ad9", "reason": "bad_password"}
+{"ts": "2026-11-25T14:04:34.656+00:00", "level": "info", "event": "auth.account_locked", "logger": "toutbet", "request_id": "4087f769c0134423851b6284c3b6aaac", "user_id": "8b54e88c-43ab-4082-8f90-3a534b1cb0f1"}
+{"ts": "2026-11-25T13:32:16.726+00:00", "level": "info", "event": "auth.token_rejected", "logger": "toutbet", "request_id": "73e18be6610d4564991ae7cc465c3009", "reason": "missing"}
+{"ts": "2026-11-25T14:04:28.645+00:00", "level": "info", "event": "authz.denied", "logger": "toutbet", "request_id": "732e935f07cd4680b77ccc9a442de989", "user_id": "8b54e88c-43ab-4082-8f90-3a534b1cb0f1", "reason": "contest_without_stake"}
+{"ts": "2026-11-25T13:34:34.757+00:00", "level": "info", "event": "rate_limit.exceeded", "logger": "toutbet", "request_id": "14cf5b6e59b14e1c84e3111582246ffe", "client_ip": "127.0.0.1", "user_id": null, "route": "/api/auth/login"}
+{"ts": "2026-11-25T13:45:03.092+00:00", "level": "warning", "event": "psp.webhook_rejected", "logger": "toutbet", "request_id": "339f79509f0b45fa9e971ea6e4ecd9f7", "client_ip": "127.0.0.1"}
+{"ts": "2026-11-25T13:54:10.062+00:00", "level": "info", "event": "auth.register_conflict", "logger": "toutbet", "request_id": "80f2748b9fca4e4e947c654cb1872613"}
+
+# Requête en erreur 500 et son événement, corrélés par request_id (extrait, trace complète dans stacktrace-overflow-sqlite.txt)
+{"ts": "2026-11-25T13:44:51.536+00:00", "level": "info", "event": "log", "logger": "uvicorn.access", "request_id": "03fff4436214417eb4dbadafacca3fdb", "message": "127.0.0.1:61959 - \"POST /api/bets HTTP/1.1\" 500"}
+{"ts": "2026-11-25T13:44:51.536+00:00", "level": "info", "event": "http.request", "logger": "toutbet", "request_id": "03fff4436214417eb4dbadafacca3fdb", "method": "POST", "route": "/api/bets", "status": 500, "duration_ms": 17.16, "client_ip": "127.0.0.1", "user_id": "70499e28-df55-4b63-953d-65f44c6a4ad9"}
+{"ts": "2026-11-25T13:44:51.526+00:00", "level": "error", "event": "error.unhandled", "logger": "toutbet", "request_id": "03fff4436214417eb4dbadafacca3fdb", "exc": "<79 lignes, voir stacktrace-overflow-sqlite.txt> ... OverflowError: date value out of range"}

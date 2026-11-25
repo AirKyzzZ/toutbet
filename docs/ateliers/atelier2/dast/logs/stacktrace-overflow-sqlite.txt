@@ -1,0 +1,80 @@
+Traceback (most recent call last):
+  File "src/toutbet/middleware/request_id.py", line 45, in __call__
+    await self.app(scope, receive, send_with_request_id)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/trustedhost.py", line 57, in __call__
+    await self.app(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    await self.app(scope, receive, send)
+  File "src/toutbet/middleware/body_limit.py", line 51, in __call__
+    await self.app(scope, limited_receive, tracking_send)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File ".venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/routing.py", line 683, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 2929, in app
+    await route.handle(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 1916, in handle
+    await self.original_router.handle(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 3015, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 1945, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 1373, in handle
+    await effective_context.app(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 175, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 161, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 762, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 383, in run_endpoint_function
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+        _run_sync_endpoint, function=dependant.call, arguments=values
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ".venv/lib/python3.13/site-packages/anyio/to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 2779, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File ".venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 1124, in run
+    result = context.run(func, *args)
+  File ".venv/lib/python3.13/site-packages/fastapi/telemetry/_api.py", line 244, in _run_sync_endpoint
+    return function(**arguments)
+  File ".venv/lib/python3.13/site-packages/slowapi/extension.py", line 770, in sync_wrapper
+    response = func(*args, **kwargs)
+  File ".venv/lib/python3.13/site-packages/slowapi/extension.py", line 770, in sync_wrapper
+    response = func(*args, **kwargs)
+  File "src/toutbet/api/bets.py", line 34, in create
+    bet = create_bet(db, user=user, data=body, now=clock.now())
+  File "src/toutbet/services/bets.py", line 60, in create_bet
+    closes_at = data.closes_at.astimezone(UTC)
+OverflowError: date value out of range
+

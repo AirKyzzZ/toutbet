@@ -1,0 +1,110 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/bets",
+ "headers": {
+  "Authorization": "Bearer <redacted>",
+  "Content-Type": "application/json"
+ },
+ "body": "{\"title\":\"Pari champ en trop\",\"event_starts_at\":\"2026-11-27T14:03:34+00:00\",\"closes_at\":\"2026-11-26T14:03:34+00:00\",\"bookie_commission_bps\":100,\"FUZZ\":\"x\"}",
+ "wordlists": [
+  "/v/extras.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "status",
+   "status": 422,
+   "length": 193,
+   "ms": 115
+  },
+  {
+   "FUZZ": "bookie_id",
+   "status": 422,
+   "length": 196,
+   "ms": 143
+  },
+  {
+   "FUZZ": "platform_commission_bps",
+   "status": 422,
+   "length": 210,
+   "ms": 140
+  },
+  {
+   "FUZZ": "id",
+   "status": 422,
+   "length": 189,
+   "ms": 143
+  },
+  {
+   "FUZZ": "created_at",
+   "status": 422,
+   "length": 197,
+   "ms": 143
+  },
+  {
+   "FUZZ": "bookie_fee_forfeited",
+   "status": 422,
+   "length": 207,
+   "ms": 94
+  },
+  {
+   "FUZZ": "final_outcome",
+   "status": 422,
+   "length": 200,
+   "ms": 94
+  },
+  {
+   "FUZZ": "settled_at",
+   "status": 422,
+   "length": 197,
+   "ms": 61
+  },
+  {
+   "FUZZ": "role",
+   "status": 422,
+   "length": 191,
+   "ms": 103
+  },
+  {
+   "FUZZ": "kyc_status",
+   "status": 422,
+   "length": 197,
+   "ms": 88
+  },
+  {
+   "FUZZ": "__class__",
+   "status": 422,
+   "length": 196,
+   "ms": 65
+  },
+  {
+   "FUZZ": "__proto__",
+   "status": 422,
+   "length": 196,
+   "ms": 33
+  },
+  {
+   "FUZZ": "constructor",
+   "status": 422,
+   "length": 198,
+   "ms": 103
+  },
+  {
+   "FUZZ": "bookie",
+   "status": 422,
+   "length": 193,
+   "ms": 101
+  },
+  {
+   "FUZZ": "totals",
+   "status": 422,
+   "length": 193,
+   "ms": 101
+  },
+  {
+   "FUZZ": "my_role",
+   "status": 422,
+   "length": 194,
+   "ms": 86
+  }
+ ]
+}

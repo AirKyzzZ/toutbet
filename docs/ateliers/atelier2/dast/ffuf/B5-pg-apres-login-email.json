@@ -1,0 +1,68 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/auth/login",
+ "headers": {
+  "Authorization": "Bearer <redacted>",
+  "Content-Type": "application/json"
+ },
+ "body": "{\"email\":\"FUZZ\",\"password\":\"not-the-password\"}",
+ "wordlists": [
+  "/v/emails.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "alice@dast.test",
+   "status": 401,
+   "length": 148,
+   "ms": 138
+  },
+  {
+   "FUZZ": "nobody@dast.test",
+   "status": 401,
+   "length": 148,
+   "ms": 104
+  },
+  {
+   "FUZZ": "alice\\u0000@dast.test",
+   "status": 422,
+   "length": 206,
+   "ms": 16
+  },
+  {
+   "FUZZ": "\\u0000",
+   "status": 422,
+   "length": 206,
+   "ms": 18
+  },
+  {
+   "FUZZ": "alice@dast.test' OR '1'='1",
+   "status": 401,
+   "length": 148,
+   "ms": 117
+  },
+  {
+   "FUZZ": "ALICE@DAST.TEST",
+   "status": 401,
+   "length": 148,
+   "ms": 136
+  },
+  {
+   "FUZZ": " alice@dast.test ",
+   "status": 401,
+   "length": 148,
+   "ms": 214
+  },
+  {
+   "FUZZ": "alice@dast.test\\r\\nX: 1",
+   "status": 401,
+   "length": 148,
+   "ms": 61
+  },
+  {
+   "FUZZ": "élise@dast.test",
+   "status": 401,
+   "length": 148,
+   "ms": 126
+  }
+ ]
+}

@@ -1,0 +1,225 @@
+Traceback (most recent call last):
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1977, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<site-packages>/ddtrace/contrib/dbapi.py", line 188, in execute
+    return self._trace_method(
+           ~~~~~~~~~~~~~~~~~~^
+        self.__wrapped__.execute,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "<site-packages>/ddtrace/contrib/internal/psycopg/cursor.py", line 27, in _trace_method
+    return super()._trace_method(method, name, resource, extra_tags, dbm_propagator, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<site-packages>/ddtrace/contrib/dbapi.py", line 137, in _trace_method
+    return method(*args, **kwargs)
+  File ".venv/lib/python3.13/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+psycopg.DataError: PostgreSQL text fields cannot contain NUL (0x00) bytes
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "src/toutbet/middleware/request_id.py", line 45, in __call__
+    await self.app(scope, receive, send_with_request_id)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/trustedhost.py", line 57, in __call__
+    await self.app(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    await self.app(scope, receive, send)
+  File "src/toutbet/middleware/body_limit.py", line 51, in __call__
+    await self.app(scope, limited_receive, tracking_send)
+  File ".venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File ".venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/routing.py", line 683, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 2929, in app
+    await route.handle(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 1916, in handle
+    await self.original_router.handle(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 3015, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 1945, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 1373, in handle
+    await effective_context.app(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 175, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File ".venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 161, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 762, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/fastapi/routing.py", line 383, in run_endpoint_function
+    return await run_in_threadpool(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+        _run_sync_endpoint, function=dependant.call, arguments=values
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/starlette/concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ".venv/lib/python3.13/site-packages/anyio/to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 2779, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File ".venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 1124, in run
+    result = context.run(func, *args)
+  File ".venv/lib/python3.13/site-packages/fastapi/telemetry/_api.py", line 244, in _run_sync_endpoint
+    return function(**arguments)
+  File ".venv/lib/python3.13/site-packages/slowapi/extension.py", line 770, in sync_wrapper
+    response = func(*args, **kwargs)
+  File ".venv/lib/python3.13/site-packages/slowapi/extension.py", line 770, in sync_wrapper
+    response = func(*args, **kwargs)
+  File "src/toutbet/api/bets.py", line 24, in create
+    "",
+  File "<site-packages>/ddtrace/internal/wrapping/context.py", line 680, in trampoline
+    return f(*args, **kwargs)
+  File "src/toutbet/api/bets.py", line 34, in create
+    bet = create_bet(db, user=user, data=body, now=clock.now())
+  File "src/toutbet/services/bets.py", line 83, in create_bet
+    db.flush()
+    ~~~~~~~~^^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 4626, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "<sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush>", line 2, in _flush
+    return target(fn, self, objects=objects)
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 4769, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/util/langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/orm/session.py", line 4730, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/orm/unitofwork.py", line 467, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/orm/unitofwork.py", line 643, in execute
+    util.preloaded.orm_persistence._save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/orm/persistence.py", line 92, in _save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/orm/persistence.py", line 1065, in _emit_insert_statements
+    result = connection.execute(
+        statement, multiparams, execution_options=execution_options
+    )
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1494, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/sql/elements.py", line 534, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1714, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<9 lines>...
+        param_dict=param_dict,
+    )
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1868, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1996, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 2351, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py", line 1977, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File ".venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<site-packages>/ddtrace/contrib/dbapi.py", line 188, in execute
+    return self._trace_method(
+           ~~~~~~~~~~~~~~~~~~^
+        self.__wrapped__.execute,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "<site-packages>/ddtrace/contrib/internal/psycopg/cursor.py", line 27, in _trace_method
+    return super()._trace_method(method, name, resource, extra_tags, dbm_propagator, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<site-packages>/ddtrace/contrib/dbapi.py", line 137, in _trace_method
+    return method(*args, **kwargs)
+  File ".venv/lib/python3.13/site-packages/psycopg/cursor.py", line 117, in execute
+    raise ex.with_traceback(None)
+sqlalchemy.exc.DataError: (psycopg.DataError) PostgreSQL text fields cannot contain NUL (0x00) bytes
+[SQL: INSERT INTO bets (id, bookie_id, title, description, min_stake_cents, bookie_commission_bps, platform_commission_bps, event_starts_at, closes_at, status, proposed_outcome, proposal_note, contest_deadline, final_outcome, bookie_fee_forfeited, settled_at, created_at) VALUES (%(id)s::UUID, %(bookie_id)s::UUID, %(title)s::VARCHAR, %(description)s::VARCHAR, %(min_stake_cents)s::INTEGER, %(bookie_commission_bps)s::INTEGER, %(platform_commission_bps)s::INTEGER, %(event_starts_at)s::TIMESTAMP WITH TIME ZONE, %(closes_at)s::TIMESTAMP WITH TIME ZONE, %(status)s::VARCHAR, %(proposed_outcome)s::VARCHAR, %(proposal_note)s::VARCHAR, %(contest_deadline)s::TIMESTAMP WITH TIME ZONE, %(final_outcome)s::VARCHAR, %(bookie_fee_forfeited)s, %(settled_at)s::TIMESTAMP WITH TIME ZONE, %(created_at)s::TIMESTAMP WITH TIME ZONE)]
+[SQL parameters hidden due to hide_parameters=True]
+(Background on this error at: https://sqlalche.me/e/21/9h9h)
+

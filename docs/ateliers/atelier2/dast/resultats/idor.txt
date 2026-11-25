@@ -1,0 +1,21 @@
+ok    GET  attendu 404 obtenu 404  outsider reads the bet
+ok    POST attendu 404 obtenu 404  outsider cancels
+ok    POST attendu 404 obtenu 404  outsider proposes a result
+ok    POST attendu 404 obtenu 404  outsider contests
+ok    POST attendu 404 obtenu 404  outsider creates an invitation
+ok    POST attendu 404 obtenu 404  outsider stakes
+ok    GET  attendu 200 obtenu 200  outsider list does not contain the bet
+ok    GET  attendu 403 obtenu 403  player reads moderation queue
+ok    GET  attendu 401 obtenu 401  token with another sub
+ok    POST attendu 200 obtenu 200  bob accepts the invitation
+ok    POST attendu 404 obtenu 404  carol replays the used invitation
+ok    GET  attendu 200 obtenu 200  participant reads the bet
+ok    POST attendu 403 obtenu 403  participant cancels
+ok    POST attendu 403 obtenu 403  participant proposes a result
+ok    POST attendu 403 obtenu 403  participant creates an invitation
+ok    POST attendu 409 obtenu 409  participant stakes without balance
+ok    POST attendu 403 obtenu 403  bookie stakes on own bet
+ok    GET  attendu 200 obtenu 200  owner reads the deposit
+ok    GET  attendu 404 obtenu 404  other user reads the deposit
+ok    POST attendu 204 obtenu 204  logout
+ok    GET  attendu 401 obtenu 401  token after logout

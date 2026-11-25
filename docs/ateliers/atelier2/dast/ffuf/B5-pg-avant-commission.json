@@ -1,0 +1,230 @@
+{
+ "method": "POST",
+ "url": "http://host.docker.internal:8100/api/bets",
+ "headers": {
+  "Authorization": "Bearer <redacted>",
+  "Content-Type": "application/json"
+ },
+ "body": "{\"title\":\"Pari commission\",\"event_starts_at\":\"2026-11-27T13:58:16+00:00\",\"closes_at\":\"2026-11-26T13:58:16+00:00\",\"bookie_commission_bps\":FUZZ}",
+ "wordlists": [
+  "/v/ints.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "-1",
+   "status": 422,
+   "length": 220,
+   "ms": 29
+  },
+  {
+   "FUZZ": "0",
+   "status": 201,
+   "length": 537,
+   "ms": 147
+  },
+  {
+   "FUZZ": "1",
+   "status": 201,
+   "length": 537,
+   "ms": 70
+  },
+  {
+   "FUZZ": "99",
+   "status": 201,
+   "length": 538,
+   "ms": 93
+  },
+  {
+   "FUZZ": "100",
+   "status": 201,
+   "length": 539,
+   "ms": 243
+  },
+  {
+   "FUZZ": "999",
+   "status": 201,
+   "length": 539,
+   "ms": 181
+  },
+  {
+   "FUZZ": "1000",
+   "status": 201,
+   "length": 540,
+   "ms": 199
+  },
+  {
+   "FUZZ": "1001",
+   "status": 422,
+   "length": 220,
+   "ms": 44
+  },
+  {
+   "FUZZ": "50000",
+   "status": 422,
+   "length": 220,
+   "ms": 17
+  },
+  {
+   "FUZZ": "50001",
+   "status": 422,
+   "length": 220,
+   "ms": 22
+  },
+  {
+   "FUZZ": "2147483647",
+   "status": 422,
+   "length": 220,
+   "ms": 22
+  },
+  {
+   "FUZZ": "2147483648",
+   "status": 422,
+   "length": 220,
+   "ms": 21
+  },
+  {
+   "FUZZ": "9223372036854775807",
+   "status": 422,
+   "length": 220,
+   "ms": 24
+  },
+  {
+   "FUZZ": "9223372036854775808",
+   "status": 422,
+   "length": 220,
+   "ms": 30
+  },
+  {
+   "FUZZ": "-9223372036854775809",
+   "status": 422,
+   "length": 220,
+   "ms": 27
+  },
+  {
+   "FUZZ": "99999999999999999999999999999999999999",
+   "status": 422,
+   "length": 220,
+   "ms": 23
+  },
+  {
+   "FUZZ": "1e3",
+   "status": 422,
+   "length": 209,
+   "ms": 31
+  },
+  {
+   "FUZZ": "1.0",
+   "status": 422,
+   "length": 209,
+   "ms": 35
+  },
+  {
+   "FUZZ": "1.5",
+   "status": 422,
+   "length": 209,
+   "ms": 31
+  },
+  {
+   "FUZZ": "-0.0",
+   "status": 422,
+   "length": 209,
+   "ms": 37
+  },
+  {
+   "FUZZ": "0x10",
+   "status": 422,
+   "length": 177,
+   "ms": 4
+  },
+  {
+   "FUZZ": "\"100\"",
+   "status": 422,
+   "length": 209,
+   "ms": 30
+  },
+  {
+   "FUZZ": "\"1000\"",
+   "status": 422,
+   "length": 209,
+   "ms": 26
+  },
+  {
+   "FUZZ": "true",
+   "status": 422,
+   "length": 209,
+   "ms": 29
+  },
+  {
+   "FUZZ": "false",
+   "status": 422,
+   "length": 209,
+   "ms": 37
+  },
+  {
+   "FUZZ": "null",
+   "status": 422,
+   "length": 209,
+   "ms": 38
+  },
+  {
+   "FUZZ": "[]",
+   "status": 422,
+   "length": 209,
+   "ms": 38
+  },
+  {
+   "FUZZ": "{}",
+   "status": 422,
+   "length": 209,
+   "ms": 44
+  },
+  {
+   "FUZZ": "[100]",
+   "status": 422,
+   "length": 209,
+   "ms": 41
+  },
+  {
+   "FUZZ": "{\"$gt\":0}",
+   "status": 422,
+   "length": 209,
+   "ms": 38
+  },
+  {
+   "FUZZ": "NaN",
+   "status": 422,
+   "length": 209,
+   "ms": 33
+  },
+  {
+   "FUZZ": "Infinity",
+   "status": 422,
+   "length": 209,
+   "ms": 34
+  },
+  {
+   "FUZZ": "-Infinity",
+   "status": 422,
+   "length": 209,
+   "ms": 30
+  },
+  {
+   "FUZZ": "1e309",
+   "status": 422,
+   "length": 209,
+   "ms": 27
+  },
+  {
+   "FUZZ": "\"\"",
+   "status": 422,
+   "length": 209,
+   "ms": 33
+  },
+  {
+   "FUZZ": "\"1 OR 1=1\"",
+   "status": 422,
+   "length": 209,
+   "ms": 32
+  }
+ ]
+}

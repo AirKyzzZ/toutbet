@@ -1,0 +1,968 @@
+Schemathesis v4.34.2
+━━━━━━━━━━━━━━━━━━━━
+
+ ✅  Loaded specification from http://127.0.0.1:8100/openapi.json (in 0.61s)
+
+     Base URL:         http://127.0.0.1:8100/
+     Specification:    Open API 3.1.0
+     Operations:       14 selected / 25 total
+
+ ✅  API capabilities:
+
+     Supports NULL byte in headers:                            ✘
+     Accepts backslash and control characters in URL paths:    ✓
+
+ ⏭   Examples (in 0.16s)
+
+     ⏭  14 skipped
+
+ ❌  Coverage (in 22.59s)
+
+     ❌ 14 failed
+
+ ❌  Fuzzing (in 151.41s)
+
+     ✅  2 passed  ❌ 12 failed
+
+ ❌  Stateful (in 185.75s)
+
+     Scenarios:    1090
+     API Links:    23 covered / 33 selected / 33 total
+
+     ✅ 963 passed  ❌ 127 failed
+
+=================================== FAILURES ===================================
+_____________________________ GET /api/auth/login ______________________________
+1. Test Case ID: db8Szp
+
+- ST204 Wrong response to undeclared method
+
+    Unsupported method GET returned 404, expected 405 Method Not Allowed
+
+    Return 405 for methods not listed in the OpenAPI spec
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"5d518af9afff4c6b99afea8a714a9aab"}}`
+
+Reproduce with:
+
+    curl -X GET -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"email": "", "password": "[Filtered]"}' http://127.0.0.1:8100/api/auth/login
+
+    st replay db8Szp
+
+________________________________ GET /api/bets _________________________________
+1. Test Case ID: 6kzmk1
+
+- ST112 Response time limit exceeded
+
+    Actual: 3220.65ms
+    Limit: 2000.00ms
+
+[200] OK:
+
+    `{"page":1,"page_size":50,"items":[{"id":"ceb0b13b-d6e6-4433-817b-4b9a7fd44ef5","title":"Pari deux dates","description":null,"bookie":"dast_alice","my_role":"bookie","status":"open","event_starts_at":"2026-12-05T12:00:00.999999Z","closes_at":"2026-12-05T12:00:00.999999Z","bookie_commission_bps":100,"platform_commission_bps":500,"min_stake_cents":null,"totals":{"OUI":0,"NON":0},"participants":[],"my_stake":null,"my_contested":false,"proposed_outcome":null,"proposal_note":null,"contest_deadline":null,"final_ou // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET -H 'Authorization: [Filtered]' 'http://127.0.0.1:8100/api/bets?status=open&role=bookie&page=1&page_size=50'
+
+____________________________ GET /api/bets/{bet_id} ____________________________
+1. Test Case ID: 5PrQzU
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"ab4d1c196e4a4d71a1f305a9a4225ed8"}}`
+
+Reproduce with:
+
+    curl -X GET http://127.0.0.1:8100/api/bets/b0e4b414-654d-473d-9ff2-e8876eff7658
+
+    st replay 5PrQzU
+
+2. Test Case ID: Xx4gEs
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"2b38579480f644c18125dc38c51b19cd"}}`
+
+Reproduce with:
+
+    curl -X GET -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/bets/3b2690b6-1d3c-2f5b-b83a-ca387a429f45
+
+    st replay Xx4gEs
+
+______________________________ GET /api/deposits _______________________________
+1. Test Case ID: io69OV
+
+- ST204 Wrong response to undeclared method
+
+    Unsupported method GET returned 404, expected 405 Method Not Allowed
+
+    Return 405 for methods not listed in the OpenAPI spec
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"ebf375bdeb924132bdc12982b72a031f"}}`
+
+Reproduce with:
+
+    curl -X GET -H 'Idempotency-Key: [Filtered]' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 500}' http://127.0.0.1:8100/api/deposits
+
+    st replay io69OV
+
+________________________ GET /api/deposits/{deposit_id} ________________________
+1. Test Case ID: Ud2Dq3
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"0306b64531e142e088fa7abd73d31ce1"}}`
+
+Reproduce with:
+
+    curl -X GET http://127.0.0.1:8100/api/deposits/c0a84888-0386-4376-99e3-501028689ac6
+
+    st replay Ud2Dq3
+
+2. Test Case ID: 1EyajT
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"6819769d161e4202a3d5454b4c800585"}}`
+
+Reproduce with:
+
+    curl -X GET -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/deposits/a32fc9bf-f4c5-55a9-b831-64d119676f68
+
+    st replay 1EyajT
+
+_________________________ GET /api/invitations/accept __________________________
+1. Test Case ID: zWVX4R
+
+- ST204 Wrong response to undeclared method
+
+    Unsupported method GET returned 404, expected 405 Method Not Allowed
+
+    Return 405 for methods not listed in the OpenAPI spec
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"770b3abc5f674185809bcd4c00dee7d5"}}`
+
+Reproduce with:
+
+    curl -X GET -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"token": "[Filtered]"}' http://127.0.0.1:8100/api/invitations/accept
+
+    st replay zWVX4R
+
+_________________________________ GET /api/me __________________________________
+1. Test Case ID: 2SGugy
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"e9d5b20048eb4965a258f2ba6d4888f4"}}`
+
+Reproduce with:
+
+    curl -X GET http://127.0.0.1:8100/api/me
+
+    st replay 2SGugy
+
+_______________________________ GET /api/wallet ________________________________
+1. Test Case ID: GSgZVf
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"1b79a647d61c40a59d7ba03efa4dd4dd"}}`
+
+Reproduce with:
+
+    curl -X GET 'http://127.0.0.1:8100/api/wallet?page=1&page_size=50'
+
+    st replay GSgZVf
+
+___________________________ OPTIONS /api/auth/login ____________________________
+1. Test Case ID: 99en9Z
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"50d721d5847f4271baaf08c7ff37845f"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"email": "", "password": "[Filtered]"}' http://127.0.0.1:8100/api/auth/login
+
+    st replay 99en9Z
+
+______________________________ OPTIONS /api/bets _______________________________
+1. Test Case ID: Lf2X3H
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"f5ce05d47da348668349b902553375d5"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"bookie_commission_bps": 0, "closes_at": "2000-01-01T00:00:00Z", "description": "", "event_starts_at": "2000-01-01T00:00:00Z", "min_stake_cents": 100, "title": "00000"}' http://127.0.0.1:8100/api/bets
+
+    st replay Lf2X3H
+
+______________________ OPTIONS /api/bets/{bet_id}/cancel _______________________
+1. Test Case ID: 5NfjPx
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"e5f24c66fa274dab9de949ca18471b01"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/bets/8b54e88c-43ab-4082-8f90-3a534b1cb0f1/cancel
+
+    st replay 5NfjPx
+
+_____________________ OPTIONS /api/bets/{bet_id}/contests ______________________
+1. Test Case ID: eec7e9
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"a0192c6b0b5640f1bf5606e109bb819b"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"reason": ""}' http://127.0.0.1:8100/api/bets/ceb0b13b-d6e6-4433-817b-4b9a7fd44ef5/contests
+
+    st replay eec7e9
+
+____________________ OPTIONS /api/bets/{bet_id}/invitations ____________________
+1. Test Case ID: gXznJc
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"d7ba8d9d08ab4633ad7eb1481bb4033f"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/bets/a67361ad-9fef-44d7-bf30-8d728df74447/invitations
+
+    st replay gXznJc
+
+______________________ OPTIONS /api/bets/{bet_id}/result _______________________
+1. Test Case ID: YT6tIo
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"12d6349519a445da9d2618684ab54035"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"note": "", "outcome": "NON"}' http://127.0.0.1:8100/api/bets/ebb5ccd2-23c2-401b-b96c-0152463f7937/result
+
+    st replay YT6tIo
+
+______________________ OPTIONS /api/bets/{bet_id}/stakes _______________________
+1. Test Case ID: OMQw6Q
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"96619eaef2a64d5e9360bb305cd70587"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Idempotency-Key: [Filtered]' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 100, "outcome": "NON"}' http://127.0.0.1:8100/api/bets/1cf4b546-1995-4f21-be3c-ee923cac6ad8/stakes
+
+    st replay OMQw6Q
+
+____________________________ OPTIONS /api/deposits _____________________________
+1. Test Case ID: VnN6cq
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"048d0854293f4b5b8253ca743c3acc02"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Idempotency-Key: [Filtered]' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 500}' http://127.0.0.1:8100/api/deposits
+
+    st replay VnN6cq
+
+_______________________ OPTIONS /api/invitations/accept ________________________
+1. Test Case ID: LbGLhm
+
+- ST205 Allow header mismatch
+
+    `Allow: GET, HEAD` does not match the schema. Missing documented methods: POST. Undocumented methods advertised: GET
+
+    List exactly the methods this resource supports in `Allow`
+
+[405] Method Not Allowed:
+
+    `{"error":{"code":"METHOD_NOT_ALLOWED","message":"Méthode non autorisée.","request_id":"1eb87b95dc6e48a1a348c34f6005f0af"}}`
+
+Reproduce with:
+
+    curl -X OPTIONS -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"token": "[Filtered]"}' http://127.0.0.1:8100/api/invitations/accept
+
+    st replay LbGLhm
+
+_____________________________ POST /api/auth/login _____________________________
+1. Test Case ID: MMiewI
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"bc052e20447a4c30b011157bdf2feed0"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"email": "", "password": "[Filtered]"}' http://127.0.0.1:8100/api/auth/login
+
+    st replay MMiewI
+
+2. Test Case ID: mWaoAH
+
+- ST103 Undocumented status code
+
+    Received: 400
+    Documented: 200, 422
+
+[400] Bad Request:
+
+    `{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"ee21d4f79c344faaa64ecb9e0755597c"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '��@�' http://127.0.0.1:8100/api/auth/login
+
+    st replay mWaoAH
+
+________________________________ POST /api/bets ________________________________
+1. Test Case ID: 4xatmm
+
+- ST202 Schema-valid request rejected
+
+    Valid data should have been accepted
+    Expected: 2xx, 3xx, 401, 403, 404, 409, 429, 5xx
+
+[422] Unprocessable Content:
+
+    `{"error":{"code":"VALIDATION_ERROR","message":"L'échéance doit être au moins 5 minutes dans le futur.","request_id":"6f8e65507dbe4a45b3a56d717544731c"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"bookie_commission_bps": 0, "closes_at": "2000-01-01T00:00:00Z", "description": "", "event_starts_at": "2000-01-01T00:00:00Z", "min_stake_cents": 100, "title": "00000"}' http://127.0.0.1:8100/api/bets
+
+    st replay 4xatmm
+
+2. Test Case ID: oAMGIB
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 201, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"30ef2399edd74a79b324b9b36453e0af"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"bookie_commission_bps": 0, "closes_at": "2000-01-01T00:00:00Z", "description": "", "event_starts_at": "2000-01-01T00:00:00Z", "min_stake_cents": 100, "title": "00000"}' http://127.0.0.1:8100/api/bets
+
+    st replay oAMGIB
+
+3. Test Case ID: rqWCUb
+
+- ST103 Undocumented status code
+
+    Received: 400
+    Documented: 201, 422
+
+[400] Bad Request:
+
+    `{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"8a5e95409816420a8b5523f207cc0313"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d 'F�p�� /i14' http://127.0.0.1:8100/api/bets
+
+    st replay rqWCUb
+
+________________________ POST /api/bets/{bet_id}/cancel ________________________
+1. Test Case ID: EhMvza
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"e11402a5adcf4b4185e02be7554858cb"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/bets/8b54e88c-43ab-4082-8f90-3a534b1cb0f1/cancel
+
+    st replay EhMvza
+
+2. Test Case ID: yQ8JBB
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"a32885b140274a14b00c75916be23965"}}`
+
+Reproduce with:
+
+    curl -X POST http://127.0.0.1:8100/api/bets/8b54e88c-43ab-4082-8f90-3a534b1cb0f1/cancel
+
+    st replay yQ8JBB
+
+3. Test Case ID: iMiVxd
+
+- ST103 Undocumented status code
+
+    Received: 409
+    Documented: 200, 422
+
+[409] Conflict:
+
+    `{"error":{"code":"INVALID_STATE","message":"Action impossible dans l'état actuel du pari.","request_id":"a69ead59acb74a2ba6ea5090f29de1c7"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/bets/ba2f0c4c-ef4f-4aa9-a988-ab4a9849ffce/cancel
+
+    st replay iMiVxd
+
+_______________________ POST /api/bets/{bet_id}/contests _______________________
+1. Test Case ID: pY3lnA
+
+- ST202 Schema-valid request rejected
+
+    Valid data should have been accepted
+    Expected: 2xx, 3xx, 401, 403, 404, 409, 429, 5xx
+
+[422] Unprocessable Content:
+
+    `{"error":{"code":"VALIDATION_ERROR","message":"Données invalides.","request_id":"1305452af0df4ae9b7869282ebc10763","fields":[{"loc":["body","reason"],"msg":"Value error, must contain at least 10 non-whitespace characters"}]}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"reason": ""}' http://127.0.0.1:8100/api/bets/ceb0b13b-d6e6-4433-817b-4b9a7fd44ef5/contests
+
+    st replay pY3lnA
+
+2. Test Case ID: YWOvmF
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 201, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"e7063bcb1003415a9c5bf68bc0d46d60"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"reason": ""}' http://127.0.0.1:8100/api/bets/ceb0b13b-d6e6-4433-817b-4b9a7fd44ef5/contests
+
+    st replay YWOvmF
+
+3. Test Case ID: uKH2tp
+
+- ST103 Undocumented status code
+
+    Received: 403
+    Documented: 201, 422
+
+[403] Forbidden:
+
+    `{"error":{"code":"FORBIDDEN","message":"Action non autorisée.","request_id":"732e935f07cd4680b77ccc9a442de989"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"reason": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"}' http://127.0.0.1:8100/api/bets/ceb0b13b-d6e6-4433-817b-4b9a7fd44ef5/contests
+
+    st replay uKH2tp
+
+4. Test Case ID: MacR0h
+
+- ST103 Undocumented status code
+
+    Received: 400
+    Documented: 201, 422
+
+[400] Bad Request:
+
+    `{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"ce5b35d8903240899373aa6ea032bbca"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d $'\x10�hE3OJ}x�[�Oi' http://127.0.0.1:8100/api/bets/a67361ad-9fef-44d7-bf30-8d728df74447/contests
+
+    st replay MacR0h
+
+_____________________ POST /api/bets/{bet_id}/invitations ______________________
+1. Test Case ID: mqmLDt
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 201, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"012131df694942daa0d3054b145f6bf5"}}`
+
+Reproduce with:
+
+    curl -X POST http://127.0.0.1:8100/api/bets/a67361ad-9fef-44d7-bf30-8d728df74447/invitations
+
+    st replay mqmLDt
+
+2. Test Case ID: Zl74LS
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 201, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"4148948f69dc4f8092e48a668d9387ad"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/bets/e3e70682-c209-1cac-a29f-6fbed82c07cd/invitations
+
+    st replay Zl74LS
+
+3. Test Case ID: SwUHrx
+
+- ST103 Undocumented status code
+
+    Received: 409
+    Documented: 201, 422
+
+[409] Conflict:
+
+    `{"error":{"code":"INVALID_STATE","message":"Action impossible dans l'état actuel du pari.","request_id":"561c3dc4c87c49439a40f4dc3c526cd5"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' http://127.0.0.1:8100/api/bets/b0fad6c8-25cd-4bb9-ad4f-7a4784c64983/invitations
+
+    st replay SwUHrx
+
+________________________ POST /api/bets/{bet_id}/result ________________________
+1. Test Case ID: eSqZYX
+
+- ST103 Undocumented status code
+
+    Received: 409
+    Documented: 200, 422
+
+[409] Conflict:
+
+    `{"error":{"code":"INVALID_STATE","message":"Action impossible dans l'état actuel du pari.","request_id":"5e08174806654e54a8cbdd4da09013c3"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"note": "", "outcome": "NON"}' http://127.0.0.1:8100/api/bets/ebb5ccd2-23c2-401b-b96c-0152463f7937/result
+
+    st replay eSqZYX
+
+2. Test Case ID: iCwlza
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"f2cdec9740b74d6a944815282157b8a3"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"note": "", "outcome": "NON"}' http://127.0.0.1:8100/api/bets/ebb5ccd2-23c2-401b-b96c-0152463f7937/result
+
+    st replay iCwlza
+
+3. Test Case ID: 8Q3PDo
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"d0daa9e2e83c4697820caeaff9e54ed5"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"note": null, "outcome": "OUI"}' http://127.0.0.1:8100/api/bets/99183123-7de7-1eba-87d4-88b9b7d4d23c/result
+
+    st replay 8Q3PDo
+
+4. Test Case ID: FXzkCg
+
+- ST103 Undocumented status code
+
+    Received: 400
+    Documented: 200, 422
+
+[400] Bad Request:
+
+    `{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"c35e4ebd51a6451dad6c53e348d12a61"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d $'�\x01�v=pז"\x17v��h\x07mC' http://127.0.0.1:8100/api/bets/a88573ec-0b07-5708-8930-6522cc888a29/result
+
+    st replay FXzkCg
+
+________________________ POST /api/bets/{bet_id}/stakes ________________________
+1. Test Case ID: 5kj3iD
+
+- ST202 Schema-valid request rejected
+
+    Valid data should have been accepted
+    Expected: 2xx, 3xx, 401, 403, 404, 409, 429, 5xx
+
+[422] Unprocessable Content:
+
+    `{"error":{"code":"IDEMPOTENCY_KEY_REUSED","message":"Cette clé d'idempotence a déjà servi ailleurs.","request_id":"68bc62a2017f42e8a27e7aed6d4fa6fa"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Idempotency-Key: [Filtered]' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 100, "outcome": "NON"}' http://127.0.0.1:8100/api/bets/1cf4b546-1995-4f21-be3c-ee923cac6ad8/stakes
+
+    st replay 5kj3iD
+
+2. Test Case ID: bjwy8L
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 201, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"e265b8291f28431583cdb0284054b71c"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Idempotency-Key: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 100, "outcome": "NON"}' http://127.0.0.1:8100/api/bets/1cf4b546-1995-4f21-be3c-ee923cac6ad8/stakes
+
+    st replay bjwy8L
+
+3. Test Case ID: x7cUyN
+
+- ST103 Undocumented status code
+
+    Received: 403
+    Documented: 201, 422
+
+[403] Forbidden:
+
+    `{"error":{"code":"BOOKIE_CANNOT_STAKE","message":"Le bookie ne peut pas participer à son propre pari.","request_id":"771dcd0822b84cb18eddca7079bc35ab"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Idempotency-Key: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 100, "outcome": "NON"}' http://127.0.0.1:8100/api/bets/34043655-7025-48d9-b710-4043fd7a04ea/stakes
+
+    st replay x7cUyN
+
+4. Test Case ID: IoNpvW
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 201, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"5434235b8e334a8a93d8b826c7551ab5"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Idempotency-Key: [Filtered]' -H 'Content-Type: application/json' -d '{"outcome": "NON", "amount_cents": 3301}' http://127.0.0.1:8100/api/bets/7313fd46-d8f2-1a62-bfdc-f6201abbc421/stakes
+
+    st replay IoNpvW
+
+5. Test Case ID: Veuzlo
+
+- ST103 Undocumented status code
+
+    Received: 400
+    Documented: 201, 422
+
+[400] Bad Request:
+
+    `{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"d0e74d925fcc4eb5893b6e6c2c4a72f6"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '��߷�' http://127.0.0.1:8100/api/bets/7b031dc3-d812-4586-a8a5-51e758820d47/stakes
+
+    st replay Veuzlo
+
+______________________________ POST /api/deposits ______________________________
+1. Test Case ID: 6qkq2u
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 201, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"4113ed9830d1475fb841077c1bc60714"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Idempotency-Key: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 500}' http://127.0.0.1:8100/api/deposits
+
+    st replay 6qkq2u
+
+2. Test Case ID: s8NFSU
+
+- ST202 Schema-valid request rejected
+
+    Valid data should have been accepted
+    Expected: 2xx, 3xx, 401, 403, 404, 409, 429, 5xx
+
+[422] Unprocessable Content:
+
+    `{"error":{"code":"IDEMPOTENCY_KEY_REUSED","message":"Cette clé d'idempotence a déjà servi ailleurs.","request_id":"2ad2e46a52b84688b2aa566541a3ff8e"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Idempotency-Key: [Filtered]' -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"amount_cents": 49999}' http://127.0.0.1:8100/api/deposits
+
+    st replay s8NFSU
+
+_________________________ POST /api/invitations/accept _________________________
+1. Test Case ID: Gge3QW
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 200, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"213ab4658318486e96b8611bd71fe222"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"token": "[Filtered]"}' http://127.0.0.1:8100/api/invitations/accept
+
+    st replay Gge3QW
+
+2. Test Case ID: VQV3n3
+
+- ST103 Undocumented status code
+
+    Received: 401
+    Documented: 200, 422
+
+[401] Unauthorized:
+
+    `{"error":{"code":"UNAUTHENTICATED","message":"Authentification requise ou identifiants invalides.","request_id":"c924568e7df84928916a2c0fcee18ea4"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"token": "[Filtered]"}' http://127.0.0.1:8100/api/invitations/accept
+
+    st replay VQV3n3
+
+3. Test Case ID: yn94A1
+
+- ST103 Undocumented status code
+
+    Received: 400
+    Documented: 200, 422
+
+[400] Bad Request:
+
+    `{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"f14c0758e3874299a327b3d020d286e2"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d $'�~臽\x10����D{�w' http://127.0.0.1:8100/api/invitations/accept
+
+    st replay yn94A1
+
+________________________________ Stateful tests ________________________________
+1. Test Case ID: 9bBd56
+
+- ST103 Undocumented status code
+
+    Received: 400
+    Documented: 201, 422
+
+[400] Bad Request:
+
+    `{"error":{"code":"BAD_REQUEST","message":"Requête invalide.","request_id":"1735f6e5aab24e3c8de89772bec8f37b"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Idempotency-Key: [Filtered]' -H 'Content-Type: application/json' -d '����g�Y?' http://127.0.0.1:8100/api/deposits
+
+    st replay 9bBd56
+
+2. Test Case ID: KoXQcr
+
+- ST103 Undocumented status code
+
+    Received: 404
+    Documented: 201, 422
+
+[404] Not Found:
+
+    `{"error":{"code":"NOT_FOUND","message":"Ressource introuvable.","request_id":"f4d30bb02bc3496c86690c1682fdc5e6"}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"reason": "\uda87\ude43v\u000f\u00e6\u00fd\u009d\udac2\udc5d\ud88c\udfc9\u00bb\u00bfq9\u008a\u00f5\u0087$\u00867\u000e;\u0081"}' http://127.0.0.1:8100/api/bets/0247320c-71af-4074-ae2e-deca02e10be4/contests
+
+    st replay KoXQcr
+
+3. Test Case ID: FtyNga
+
+- ST202 Schema-valid request rejected
+
+    Valid data should have been accepted
+    Expected: 2xx, 3xx, 401, 403, 404, 409, 429, 5xx
+
+[422] Unprocessable Content:
+
+    `{"error":{"code":"VALIDATION_ERROR","message":"Données invalides.","request_id":"bd5b375eb0f64ef182933165220fbe79","fields":[{"loc":["body","note"],"msg":"Value error, must not contain NUL characters"}]}}`
+
+Reproduce with:
+
+    curl -X POST -H 'Authorization: [Filtered]' -H 'Content-Type: application/json' -d '{"outcome": "ANNULE", "note": "\u008fg\udbbf\ude7a\u0006\u00b0\u0000N\u0010\u00d1\udb3c\udcf5"}' http://127.0.0.1:8100/api/bets/4d054e50-12ae-467a-afe6-0ef8e177e48e/result
+
+    st replay FtyNga
+
+=================================== SUMMARY ====================================
+
+API Operations:
+  Selected: 14/25
+  Tested: 14
+
+Test Phases:
+  ⏭  Examples
+  ❌ Coverage
+  ❌ Fuzzing
+  ❌ Stateful
+
+Failures:
+  ❌ ST205 Allow header mismatch: 9
+  ❌ ST202 Schema-valid request rejected: 5
+  ❌ ST103 Undocumented status code: 33
+  ❌ ST204 Wrong response to undeclared method: 3
+  ❌ ST112 Response time limit exceeded: 1
+
+For more information, run `st explain <code>` for ST103, ST112, ST202, ST204, ST205.
+
+Test cases:
+  12008 generated, 51 found 51 unique failures
+
+Reports:
+  - JUnit: <scratch>/dast/out/schemathesis-pg-apres/junit-20261125T150407Z.xml
+
+Seed: 7
+
+============================ 51 failures in 360.03s ============================

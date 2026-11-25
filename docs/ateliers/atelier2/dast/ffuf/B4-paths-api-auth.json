@@ -1,0 +1,19 @@
+{
+ "method": "GET",
+ "url": "http://host.docker.internal:8100/api/FUZZ",
+ "headers": {
+  "Authorization": "Bearer <redacted>"
+ },
+ "body": "",
+ "wordlists": [
+  "/v/common.txt"
+ ],
+ "results": [
+  {
+   "FUZZ": "me",
+   "status": 200,
+   "length": 133,
+   "ms": 17
+  }
+ ]
+}
