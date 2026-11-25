@@ -57,6 +57,7 @@ Les critères d'acceptation suivent la syntaxe EARS pour être testables sans in
 > En tant qu'attaquant, je veux tester des milliers de mots de passe issus de fuites sur la connexion pour vider le portefeuille d'un parieur.
 
 - SI une même IP dépasse 5 tentatives de connexion par minute, ALORS LE SYSTÈME DOIT répondre 429 avec `Retry-After`, avant tout calcul argon2.
+- SI l'attaquant fait varier l'en-tête `X-Forwarded-For` depuis une adresse qui n'est pas un proxy de confiance, ALORS LE SYSTÈME DOIT continuer à compter ses tentatives sur son adresse réelle.
 - SI un compte cumule 10 échecs en 15 minutes, ALORS LE SYSTÈME DOIT le verrouiller 15 minutes sans changer la réponse renvoyée, et journaliser `auth.account_locked`.
 - SI un jeton est altéré (signature fausse, `alg: none`, autre algorithme, `exp` dépassé, claim manquant), ALORS LE SYSTÈME DOIT renvoyer 401.
 - SI un mot de passe dépasse 128 caractères, ALORS LE SYSTÈME DOIT le refuser (422) sans le hacher.

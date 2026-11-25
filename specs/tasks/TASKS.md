@@ -180,7 +180,7 @@ Chaque ticket implémente la mitigation de sa menace dans `threats.md` et n'est 
 
 | Ticket | Menace | À implémenter | Fait quand (tests) | Tâche |
 |---|---|---|---|---|
-| SEC-S01 | T-S01 force brute | 5 / min par IP sur la connexion avant base et hash, verrouillage 15 min après 10 échecs | `test_as01_login_rate_limited_per_ip`, `test_as01_account_locked_after_ten_failures` | TASK-07, TASK-09 |
+| SEC-S01 | T-S01 force brute | 5 / min par IP sur la connexion avant base et hash, verrouillage 15 min après 10 échecs | `test_as01_login_rate_limited_per_ip`, `test_as01_spoofed_forwarded_for_does_not_bypass_limit`, `test_as01_account_locked_after_ten_failures` | TASK-07, TASK-09 |
 | SEC-S02 | T-S02 JWT forgé | décodage PyJWT strict, claims obligatoires, session et `jti` vérifiés | `test_as01_tampered_token_rejected` (paramétré : `alg: none`, signature fausse, HS512, `exp` dépassé, `aud` faux, `sid` absent) | TASK-09 |
 | SEC-S03 | T-S03 webhook forgé | HMAC sur le corps brut avant parsing, tolérance 5 min | `test_as02_unsigned_webhook_rejected`, `test_as02_bad_signature_rejected`, `test_as02_stale_timestamp_rejected` | TASK-11 |
 | SEC-S04 | T-S04 vol de jeton | révocation à la déconnexion, rotation du `jti`, mot de passe pour retirer | `test_us01_5_token_rejected_after_logout`, `test_us01_6_old_token_rejected_after_refresh`, `test_as04_withdrawal_requires_password` | TASK-09, TASK-13 |
