@@ -3,6 +3,8 @@
   --green-light: #dcfce7;
   --red: #991b1b;
   --red-light: #fee2e2;
+  --amber: #78350f;
+  --amber-light: #fef3c7;
   --ink: #1c1917;
   --muted: #57534e;
   --line: #d6d3d1;
@@ -121,6 +123,13 @@ button.link {
 }
 
 .flash.error { background: var(--red-light); color: var(--red); }
+
+.banner {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--amber-light);
+  color: var(--amber);
+}
 
 .token {
   word-break: break-all;

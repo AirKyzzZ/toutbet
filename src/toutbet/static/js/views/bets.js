@@ -36,7 +36,7 @@ function outcomeSelect(name, withCancel = false) {
   return el("select", { name, required: true }, options);
 }
 
-export async function renderBetList(container) {
+export async function renderBetList(container, canCreate = true) {
   const page = await request("GET", "/api/bets");
   const items = page.items.map((bet) =>
     el(
@@ -48,12 +48,19 @@ export async function renderBetList(container) {
   );
   replaceContent(
     container,
-    el("section", { className: "card" }, el("h2", { text: "Mes paris" }), el("a", { href: "#/bets/new", text: "Créer un pari" })),
+    el("section", { className: "card" }, el("h2", { text: "Mes paris" }), canCreate ? el("a", { href: "#/bets/new", text: "Créer un pari" }) : null),
     el("section", { className: "card" }, items.length ? el("ul", { className: "list" }, items) : el("p", { className: "muted", text: "Aucun pari pour l'instant. Créez-en un ou utilisez un lien d'invitation." })),
   );
 }
 
-export function renderNewBet(container) {
+export function renderNewBet(container, canCreate = true) {
+  if (!canCreate) {
+    replaceContent(
+      container,
+      el("section", { className: "card" }, el("h2", { text: "Nouveau pari" }), el("p", { text: "La création de paris est momentanément indisponible." }), el("a", { href: "#/bets", text: "Retour à mes paris" })),
+    );
+    return;
+  }
   const form = actionForm(
     [
       field("Titre", el("input", { name: "title", required: true, minlength: 5, maxlength: 140 })),

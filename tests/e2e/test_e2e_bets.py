@@ -1,7 +1,7 @@
 import json
 import secrets
 from collections.abc import Callable
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from browser_flows import (
@@ -10,6 +10,7 @@ from browser_flows import (
     RATE_LIMITED,
     Api,
     Phone,
+    Stack,
     expire_invitation,
     new_account,
     seed_account,
@@ -372,3 +373,42 @@ def test_e2e_as05_unbroken_title_keeps_the_page_phone_wide(phone: Phone) -> None
 
     assert bet_page_width <= 375
     assert list_width <= 375
+
+
+def test_e2e_bet_creation_switch_shows_a_banner_and_keeps_the_rest(
+    phones: Callable[..., Phone], degraded_stack: Stack
+) -> None:
+    normal = phones()
+    normal.signup(new_account("open"))
+    expect(normal.page.locator("#degraded")).to_be_hidden()
+    expect(normal.view.get_by_role("link", name="Créer un pari")).to_be_visible()
+    account = new_account("degraded")
+    seed_account(degraded_stack, account)
+    phone = phones(degraded_stack)
+
+    phone.login(account)
+
+    banner = phone.page.locator("#degraded")
+    expect(banner).to_contain_text("La création de paris est momentanément indisponible.")
+    expect(phone.view.get_by_role("heading", name="Mes paris")).to_be_visible()
+    expect(phone.view.get_by_role("link", name="Créer un pari")).to_have_count(0)
+    phone.open("#/bets/new")
+    expect(
+        phone.view.get_by_text("La création de paris est momentanément indisponible.")
+    ).to_be_visible()
+    expect(phone.page.get_by_role("button", name="Créer le pari")).to_have_count(0)
+    now = datetime.now(UTC)
+    refused = phone.fetch(
+        "POST",
+        "/api/bets",
+        {
+            "title": "Matis va-t-il réussir son créneau ?",
+            "closes_at": (now + timedelta(hours=1)).isoformat(),
+            "event_starts_at": (now + timedelta(hours=2)).isoformat(),
+            "bookie_commission_bps": 400,
+        },
+    )
+    assert refused["status"] == 503
+    assert json.loads(refused["text"])["error"]["code"] == "FEATURE_DISABLED"
+    phone.expect_balance(0)
+    expect(banner).to_be_visible()

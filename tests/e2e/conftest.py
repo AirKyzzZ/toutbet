@@ -23,6 +23,7 @@ HOST = "127.0.0.1"
 APP_PORT = 8200
 PSP_PORT = 8201
 STRICT_APP_PORT = 8202
+DEGRADED_APP_PORT = 8203
 NO_TRUSTED_PROXY = "192.0.2.1"
 GENEROUS_LIMIT = "100000/minute"
 RATE_LIMIT_VARIABLES = (
@@ -118,7 +119,14 @@ def _check_app_log(log: Path) -> None:
 
 
 @contextmanager
-def _launch(workdir: Path, port: int, *, with_psp: bool, generous_limits: bool) -> Iterator[Stack]:
+def _launch(
+    workdir: Path,
+    port: int,
+    *,
+    with_psp: bool,
+    generous_limits: bool,
+    extra_env: dict[str, str] | None = None,
+) -> Iterator[Stack]:
     workdir.mkdir(parents=True)
     database_url = f"sqlite:///{workdir / 'toutbet.db'}"
     engine = make_engine(database_url)
@@ -142,6 +150,7 @@ def _launch(workdir: Path, port: int, *, with_psp: bool, generous_limits: bool) 
         app_env.pop(variable, None)
         if generous_limits:
             app_env[variable] = GENEROUS_LIMIT
+    app_env.update(extra_env or {})
     psp_env = {
         **env,
         "MOCK_PSP_HOST": HOST,
@@ -195,6 +204,18 @@ def stack(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Stack]:
 def strict_stack(tmp_path: Path) -> Iterator[Stack]:
     with _launch(
         tmp_path / "strict", STRICT_APP_PORT, with_psp=False, generous_limits=False
+    ) as running:
+        yield running
+
+
+@pytest.fixture
+def degraded_stack(tmp_path: Path) -> Iterator[Stack]:
+    with _launch(
+        tmp_path / "degraded",
+        DEGRADED_APP_PORT,
+        with_psp=False,
+        generous_limits=True,
+        extra_env={"BET_CREATION_ENABLED": "false"},
     ) as running:
         yield running
 

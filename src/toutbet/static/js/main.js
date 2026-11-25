@@ -8,6 +8,7 @@ import { flash, go } from "./ui.js";
 const view = document.getElementById("view");
 const nav = document.getElementById("nav");
 const moderationLink = document.getElementById("nav-moderation");
+const degradedBanner = document.getElementById("degraded");
 
 let pendingInvitation = null;
 let currentUser = null;
@@ -48,14 +49,18 @@ async function loadCurrentUser() {
   }
 }
 
+function betCreationOpen() {
+  return !currentUser || currentUser.bet_creation_enabled !== false;
+}
+
 const routes = [
   [/^#\/login$/, () => renderLogin(view, onLogin)],
   [/^#\/register$/, () => renderRegister(view)],
   [/^#\/wallet$/, () => renderWallet(view, currentUser)],
-  [/^#\/bets\/new$/, () => renderNewBet(view)],
+  [/^#\/bets\/new$/, () => renderNewBet(view, betCreationOpen())],
   [/^#\/bets\/([0-9a-f-]{36})$/, (match) => renderBet(view, match[1])],
   [/^#\/moderation$/, () => renderModeration(view)],
-  [/^#\/bets$/, () => renderBetList(view)],
+  [/^#\/bets$/, () => renderBetList(view, betCreationOpen())],
 ];
 
 async function render() {
@@ -71,6 +76,7 @@ async function render() {
   }
   nav.hidden = !hasToken();
   moderationLink.hidden = !(currentUser && currentUser.role === "moderator");
+  degradedBanner.hidden = !hasToken() || betCreationOpen();
   for (const [pattern, handler] of routes) {
     const match = hash.match(pattern);
     if (match) {
