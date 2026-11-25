@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from support import Api, staked_bet
 from toutbet.models import Stake
@@ -68,7 +68,7 @@ def test_as07_concurrent_stakes_never_overspend(api: Api, client: TestClient) ->
     assert statuses.count(409) == 40
     assert api.balance(player) == 0
     with api.db() as db:
-        assert len(db.scalars(select(Stake)).all()) == 10
+        assert db.scalar(select(func.count()).select_from(Stake)) == 10
         report = verify_ledger(db)
     assert report.ok, report.message
 

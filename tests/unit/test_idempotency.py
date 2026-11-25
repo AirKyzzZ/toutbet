@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, date, datetime, timedelta
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from toutbet.errors import ApiError
@@ -108,6 +108,6 @@ def test_keys_are_purged_after_24_hours(db_session: Session, user_id: uuid.UUID)
 
     with db_session.begin():
         purge_expired(db_session, NOW + timedelta(hours=23))
-        assert len(db_session.scalars(select(IdempotencyRecord)).all()) == 1
+        assert db_session.scalar(select(func.count()).select_from(IdempotencyRecord)) == 1
         purge_expired(db_session, NOW + timedelta(hours=24, seconds=1))
         assert db_session.scalars(select(IdempotencyRecord)).all() == []

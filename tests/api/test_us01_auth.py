@@ -3,7 +3,7 @@ from datetime import timedelta
 import pytest
 from argon2 import PasswordHasher
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from support import DEFAULT_PASSWORD, Api
 from toutbet.models import LoginSession, User, Wallet
@@ -57,7 +57,7 @@ def test_us01_2_duplicate_email_gets_identical_response_and_same_hash_work(
     assert first.json() == second.json()
     assert calls == ["hash"]
     with api.db() as db:
-        assert len(db.scalars(select(User)).all()) == 1
+        assert db.scalar(select(func.count()).select_from(User)) == 1
 
 
 def test_us01_3_login_opens_server_session_and_returns_15_minute_jwt(api: Api) -> None:

@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from support import Api, FakeClock, FakePsp, proposed_bet, staked_bet
 from toutbet.models import Contest, User
@@ -35,7 +35,7 @@ def test_as10_second_contest_rejected(api: Api) -> None:
     assert second.status_code == 409
     assert second.json()["error"]["code"] == "ALREADY_CONTESTED"
     with api.db() as db:
-        assert len(db.scalars(select(Contest)).all()) == 1
+        assert db.scalar(select(func.count()).select_from(Contest)) == 1
 
 
 def test_as10_small_stakes_do_not_reach_threshold(api: Api) -> None:
@@ -61,7 +61,7 @@ def test_as10_registration_rate_limited_per_ip(
 
     assert statuses == [202] * 5 + [429]
     with api.db() as db:
-        assert len(db.scalars(select(User)).all()) == 5
+        assert db.scalar(select(func.count()).select_from(User)) == 5
 
 
 def test_as10_email_case_variants_are_one_account(api: Api) -> None:

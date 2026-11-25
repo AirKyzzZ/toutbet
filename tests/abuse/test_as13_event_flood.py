@@ -1,7 +1,7 @@
 from collections.abc import Callable, Iterator
 
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from support import Api, FakeClock, FakePsp
 from toutbet.models import Bet
@@ -23,7 +23,7 @@ def test_as13_write_rate_limit_returns_429_with_retry_after(
     assert statuses[20].json()["error"]["code"] == "RATE_LIMITED"
     assert int(statuses[20].headers["retry-after"]) > 0
     with api.db() as db:
-        assert len(db.scalars(select(Bet)).all()) == 20
+        assert db.scalar(select(func.count()).select_from(Bet)) == 20
     assert (
         api.client.post("/api/bets", json=api.bet_body(), headers=other.headers).status_code == 201
     )
@@ -51,7 +51,7 @@ def test_as13_per_ip_limit_applies_across_accounts(
     assert int(writes[3].headers["retry-after"]) > 0
     assert other_ip.status_code == 201
     with api.db() as db:
-        assert len(db.scalars(select(Bet)).all()) == 4
+        assert db.scalar(select(func.count()).select_from(Bet)) == 4
 
 
 def test_as13_oversized_body_returns_413(api: Api, client: TestClient) -> None:

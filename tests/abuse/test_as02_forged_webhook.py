@@ -2,7 +2,7 @@ import io
 import json
 
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from support import Api, Player
 from toutbet.models import Deposit, LedgerEntry
@@ -78,7 +78,7 @@ def test_as02_replayed_webhook_credits_once(api: Api) -> None:
     assert [r.status_code for r in responses] == [200, 200, 200]
     assert api.balance(player) == 2000
     with api.db() as db:
-        assert len(db.scalars(select(LedgerEntry)).all()) == 1
+        assert db.scalar(select(func.count()).select_from(LedgerEntry)) == 1
 
 
 def test_as02_amount_or_currency_mismatch_not_credited(

@@ -4,7 +4,7 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from toutbet.models import LedgerEntry
@@ -62,7 +62,7 @@ def test_debit_refused_when_balance_insufficient(db_session: Session) -> None:
 
     with db_session.begin():
         assert balance_of(db_session, user_id) == 500
-        assert len(db_session.scalars(select(LedgerEntry)).all()) == 1
+        assert db_session.scalar(select(func.count()).select_from(LedgerEntry)) == 1
 
 
 @pytest.mark.parametrize("amount", [0, -1, 10.5, True])
