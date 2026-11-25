@@ -65,6 +65,8 @@ MESSAGES: dict[ErrorCode, str] = {
     ErrorCode.FEATURE_DISABLED: "Fonctionnalité temporairement désactivée.",
 }
 
+INPUT_ECHOING_ERRORS: dict[str, str] = {"uuid_parsing": "Input should be a valid UUID"}
+
 HTTP_STATUS_CODES: dict[int, ErrorCode] = {
     404: ErrorCode.NOT_FOUND,
     405: ErrorCode.METHOD_NOT_ALLOWED,
@@ -136,7 +138,10 @@ def _validation_error_handler(request: Request, exc: Exception) -> Response:
     if not isinstance(exc, RequestValidationError):
         raise exc
     fields = [
-        {"loc": [str(part) for part in item.get("loc", ())], "msg": str(item.get("msg", ""))}
+        {
+            "loc": [str(part) for part in item.get("loc", ())],
+            "msg": INPUT_ECHOING_ERRORS.get(str(item.get("type")), str(item.get("msg", ""))),
+        }
         for item in exc.errors()
     ]
     payload = error_payload(ErrorCode.VALIDATION_ERROR, request_id_of(request))

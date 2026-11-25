@@ -11,6 +11,28 @@ from support import DEFAULT_PASSWORD, Api, FakeClock, FakePsp, idempotency_heade
 from toutbet.security.webhook_signature import sign_webhook
 
 
+def test_as16_invalid_uuid_error_does_not_echo_characters(api: Api, client: TestClient) -> None:
+    player = api.signup()
+    marker = "Q"
+
+    responses = [
+        client.get(
+            f"/api/bets/{marker}0000000-0000-0000-0000-000000000000", headers=player.headers
+        ),
+        client.post(
+            f"/api/bets/{'0' * 8}-0000-0000-0000-000000000000/stakes",
+            json={"outcome": "OUI", "amount_cents": 100},
+            headers={**player.headers, "Idempotency-Key": f"1234{marker}"},
+        ),
+    ]
+
+    for response in responses:
+        assert response.status_code == 422
+        assert f"`{marker}`" not in response.text
+        messages = {field["msg"] for field in response.json()["error"]["fields"]}
+        assert messages == {"Input should be a valid UUID"}
+
+
 def test_as16_unhandled_error_returns_generic_body(
     api: Api, client: TestClient, captured_logs: io.StringIO
 ) -> None:
