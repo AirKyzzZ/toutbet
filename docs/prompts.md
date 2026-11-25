@@ -6,7 +6,8 @@ Les prompts sont versionnés ici avec les specs pour que la génération du code
 |---|---|---|---|---|
 | P0 | 2026-11-25 | Claude Opus 5.5 | rédaction des specs, du modèle de menaces et du prompt P1 | énoncés des ateliers 1 à 4, résumé des diapos du cours |
 | P1 | 2026-11-25 | Claude Opus 5.5 | génération du socle technique du MVP | dossier `specs/` |
-| R1 | après P1 | binôme + agent de revue séparé | revue de sécurité du code généré | code généré, `specs/threats.md`, `specs/design.md` |
+| R1 | 2026-11-25 | Claude Opus 5.5 (session neuve) + checklist | revue de sécurité du code généré, résultat dans `docs/reviews/r1.md` | code généré, `specs/threats.md`, `specs/design.md` |
+| P2 | 2026-11-25 | Claude Opus 5.5 | correction des écarts trouvés par R1 | code, `specs/`, `docs/reviews/r1.md` |
 
 ## P0 : rédaction des specs
 
@@ -192,7 +193,7 @@ Deployment
 
 ## R1 : revue de sécurité du code généré
 
-Le code généré n'est commité qu'après cette revue, faite par le membre du binôme qui n'a pas lancé la génération. Valider n'est pas coder : on vérifie le code, pas le résumé que le modèle en fait.
+Le code généré n'est commité qu'après cette revue. En pratique, la checklist a été déroulée par Claude et validée par Maxime, et le prompt ci-dessous a été lancé dans une session neuve (voir `docs/reviews/r1.md`). Valider n'est pas coder : on vérifie le code, pas le résumé que le modèle en fait.
 
 ### Checklist humaine
 
@@ -226,10 +227,29 @@ You are an application security reviewer. You did not write this code. Review th
 
 Les écarts trouvés deviennent des tickets, et chaque correction est faite par un prompt consigné ci-dessous.
 
+## P2 : correction des écarts de R1
+
+Prompt envoyé tel quel, dans une session neuve, avec le dépôt au commit qui suit la revue :
+
+````text
+You are a senior Python backend engineer. The repository contains ToutBet', generated from specs/ and reviewed in docs/reviews/r1.md. Fix every finding of the review table, nothing else.
+
+Read docs/reviews/r1.md, specs/design.md and specs/threats.md first. The rules of the P1 prompt in docs/prompts.md still apply (stack, no new runtime dependency, no comments, no docstrings, money rules, tests assert the security property).
+
+Findings to fix, one commit each, in this order:
+1. N1: never reverse a withdrawal or release its idempotency key when the PSP outcome is unknown (read timeout, 5xx, unreadable 2xx). Reverse only on an explicit PSP refusal. On an unknown outcome keep the withdrawal pending, keep the key, answer 503 with a "pending" message, log money.withdrawal_unconfirmed, and send the withdrawal id as the PSP idempotency key. Add a worker step that reconciles pending withdrawals through a PSP status lookup by withdrawal id (extend the mock PSP and the fake client accordingly). Rewrite the test that asserted the old behaviour and add one proving a timeout followed by a retry never creates a second payout.
+2. T-D01: add a per-IP limit on top of the per-user limits for authenticated reads and writes, configurable like the others.
+3. T-R03: mandatory free-text fields (moderator justification, contest reason) count non-whitespace characters toward their minimum length.
+4. T-I03: create every SQLAlchemy engine with hide_parameters=True, and add a test that forces a database error during registration and asserts the birth date and the password hash never reach the logs.
+5. T-I06: the plain-HTTP Caddy site only proxies /api/webhooks/psp and answers 404 to everything else.
+6. N2: when ENV=prod, PSP_BASE_URL and PUBLIC_BASE_URL must use https, otherwise startup fails with a clear message. Keep docker-compose working (dev profile or an explicit override, your choice, documented in the README).
+7. N3: PSP KYC events only change a user whose KYC status is pending; otherwise nothing changes and an event is logged.
+
+For each fix: the test first, then the code, then uv run pytest, uv run ruff check, uv run ruff format --check and uv run mypy src must pass.
+Commit each fix with a conventional commit subject in English, lowercase after the colon, nothing else in the message (a hook adds the trailers). Do not push. Do not edit specs/ or docs/ except the README sections that describe changed behaviour.
+At the end, reply with the commit list, the test count and the output of the four quality commands.
+````
+
 ## Prompts suivants
 
-À compléter à chaque itération (correction après revue, ateliers 2 à 4), avec le même format : date, modèle, objet, contexte fourni, prompt exact, résultat de la revue.
-
-| # | Date | Modèle | Objet | Contexte fourni |
-|---|---|---|---|---|
-| P2 | | | | |
+À compléter à chaque itération (ateliers 2 à 4), avec le même format : date, modèle, objet, contexte fourni, prompt exact, résultat.
