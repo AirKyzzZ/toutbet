@@ -1,0 +1,129 @@
+rules:
+  - id: toutbet-balance-write-outside-money
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Wallet balance written outside services/money.py. Every balance change must go through
+      transfer(), which debits with a conditional UPDATE and appends the hash-chained ledger
+      entry in the same transaction (T-T02, T-T08, T-T10).
+    metadata:
+      category: security
+      threats: [T-T02, T-T08, T-T10]
+      confidence: HIGH
+    paths:
+      exclude:
+        - "**/services/money.py"
+    pattern-either:
+      - pattern: $OBJ.balance_cents = $VALUE
+      - pattern: $OBJ.balance_cents += $VALUE
+      - pattern: $OBJ.balance_cents -= $VALUE
+      - pattern: $QUERY.values(..., balance_cents=$VALUE, ...)
+      - pattern: '$QUERY.values({..., "balance_cents": $VALUE, ...})'
+      - patterns:
+          - pattern: Wallet(..., balance_cents=$VALUE, ...)
+          - pattern-not: Wallet(..., balance_cents=0, ...)
+      - patterns:
+          - pattern-either:
+              - pattern: text("$SQL")
+              - pattern: $CONN.exec_driver_sql("$SQL", ...)
+              - pattern: $CONN.execute("$SQL", ...)
+          - metavariable-regex:
+              metavariable: $SQL
+              regex: (?i)\b(update\s+wallets|insert\s+into\s+wallets)\b
+
+  - id: toutbet-money-float
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Money amount handled as float or Decimal. Amounts, fees and rates are integer cents and
+      basis points; use int and // so no rounding can create or lose money (T-T04, T-T10).
+    metadata:
+      category: security
+      threats: [T-T04, T-T10]
+      confidence: MEDIUM
+    pattern-either:
+      - patterns:
+          - pattern-either:
+              - pattern: "$NAME: float"
+              - pattern: "$NAME: float = $VALUE"
+              - pattern: "$NAME: float | None"
+              - pattern: "$NAME: float | None = $VALUE"
+              - pattern: "$NAME: Decimal"
+              - pattern: "$NAME: Decimal = $VALUE"
+              - pattern: "$NAME: Decimal | None"
+              - pattern: "$NAME: Decimal | None = $VALUE"
+              - pattern: "$NAME: Mapped[float]"
+              - pattern: "$NAME: Mapped[float] = $VALUE"
+              - pattern: "$NAME: Mapped[float | None]"
+              - pattern: "$NAME: Mapped[Decimal]"
+              - pattern: "$NAME: Mapped[Decimal] = $VALUE"
+              - pattern: "$NAME: Mapped[Decimal | None]"
+          - metavariable-regex:
+              metavariable: $NAME
+              regex: (?i).*(cents|bps|amount|balance|stake|fee|commission|payout|price).*
+      - patterns:
+          - pattern-either:
+              - pattern: float($VALUE)
+              - pattern: Decimal($VALUE)
+          - metavariable-regex:
+              metavariable: $VALUE
+              regex: (?i).*(cents|bps|amount|balance|stake|fee|commission|payout|price).*
+      - patterns:
+          - pattern: $LEFT / $RIGHT
+          - metavariable-regex:
+              metavariable: $LEFT
+              regex: (?i).*(cents|bps|amount|balance|stake|fee|commission|payout|price|total|pool).*
+      - patterns:
+          - pattern: $LEFT / $RIGHT
+          - metavariable-regex:
+              metavariable: $RIGHT
+              regex: (?i).*(cents|bps|amount|balance|stake|fee|commission|payout|price|total|pool).*
+      - patterns:
+          - pattern: $LEFT * $RIGHT
+          - metavariable-regex:
+              metavariable: $LEFT
+              regex: (?i).*(cents|bps|amount|balance|stake|fee|commission|payout|price|total|pool).*
+          - metavariable-regex:
+              metavariable: $RIGHT
+              regex: ^\d*\.\d+$
+
+  - id: toutbet-route-without-auth
+    languages: [python]
+    severity: ERROR
+    message: >-
+      Route registered on a router without the authentication dependency. Build routers with
+      protected_router() or take an AuthenticatedUser, Player or Moderator parameter; only the
+      routes listed in PUBLIC_ROUTES may stay public (T-E02, T-I01).
+    metadata:
+      category: security
+      threats: [T-E02, T-I01]
+      confidence: HIGH
+    patterns:
+      - pattern-either:
+          - pattern-inside: |
+              $ROUTER = APIRouter(...)
+              ...
+          - pattern-inside: |
+              $ROUTER = FastAPI(...)
+              ...
+      - pattern-not-inside: |
+          $ROUTER = APIRouter(..., dependencies=[..., Depends(current_user), ...], ...)
+          ...
+      - pattern: |
+          @$ROUTER.$METHOD($PATH, ...)
+          def $HANDLER(...): ...
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: ^(get|post|put|patch|delete|api_route)$
+      - pattern-not: |
+          @$ROUTER.$METHOD($PATH, ...)
+          def $HANDLER(..., $USER: AuthenticatedUser, ...): ...
+      - pattern-not: |
+          @$ROUTER.$METHOD($PATH, ...)
+          def $HANDLER(..., $USER: Player, ...): ...
+      - pattern-not: |
+          @$ROUTER.$METHOD($PATH, ...)
+          def $HANDLER(..., $USER: Moderator, ...): ...
+      - metavariable-regex:
+          metavariable: $HANDLER
+          regex: ^(?!(register_account|login|psp_webhook|public_key|healthz)$)
