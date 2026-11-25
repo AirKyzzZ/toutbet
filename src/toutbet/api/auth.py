@@ -88,7 +88,9 @@ def build_router(limits: RateLimits) -> APIRouter:
 
     @router.get("/me", response_model=MeResponse)
     @limits.reads()
-    def me(request: Request, user: AuthenticatedUser, db: DbSession) -> MeResponse:
+    def me(
+        request: Request, user: AuthenticatedUser, db: DbSession, settings: SettingsDep
+    ) -> MeResponse:
         with db.begin():
             email = db.execute(select(User.email).where(User.id == user.id)).scalar_one()
         return MeResponse(
@@ -97,6 +99,7 @@ def build_router(limits: RateLimits) -> APIRouter:
             display_name=user.display_name,
             role=user.role,
             kyc_status=user.kyc_status,
+            bet_creation_enabled=settings.bet_creation_enabled,
         )
 
     return router

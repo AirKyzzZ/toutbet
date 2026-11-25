@@ -19,6 +19,15 @@ IdempotencyKey = Annotated[uuid.UUID, Header(alias="Idempotency-Key")]
 Feature = Literal[
     "bet_creation_enabled", "stakes_enabled", "deposits_enabled", "withdrawals_enabled"
 ]
+FEATURE_MESSAGES: dict[Feature, str] = {
+    "bet_creation_enabled": (
+        "La création de paris est momentanément indisponible. Vos paris, vos mises et votre "
+        "portefeuille restent accessibles."
+    ),
+    "stakes_enabled": "Les mises sont momentanément indisponibles. Votre solde n'a pas bougé.",
+    "deposits_enabled": "Les dépôts sont momentanément indisponibles. Réessayez plus tard.",
+    "withdrawals_enabled": "Les retraits sont momentanément indisponibles. Votre solde est intact.",
+}
 
 
 def protected_router(**kwargs: Any) -> APIRouter:
@@ -29,7 +38,7 @@ def protected_router(**kwargs: Any) -> APIRouter:
 def require_feature(name: Feature) -> Callable[[Settings], None]:
     def check(settings: SettingsDep) -> None:
         if not getattr(settings, name):
-            raise ApiError(503, ErrorCode.FEATURE_DISABLED)
+            raise ApiError(503, ErrorCode.FEATURE_DISABLED, FEATURE_MESSAGES[name])
 
     return check
 

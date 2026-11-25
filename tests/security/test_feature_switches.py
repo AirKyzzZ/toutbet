@@ -45,3 +45,29 @@ def test_feature_switch_returns_503(
         assert db.scalar(select(func.count()).select_from(Withdrawal)) == 0
     assert api.balance(player) == 5000
     assert closed.get(f"/api/bets/{bet['id']}", headers=player.headers).status_code == 200
+
+
+def test_bet_creation_switch_keeps_the_rest_usable(
+    make_client: Callable[..., TestClient], clock: FakeClock, psp: FakePsp
+) -> None:
+    open_api = Api(make_client(), clock, psp)
+    bookie, player = open_api.signup(), open_api.signup()
+    open_api.fund(player, 5000)
+    bet = open_api.create_bet(bookie)
+    open_api.add_participants(bookie, bet["id"], player)
+    assert open_api.client.get("/api/me", headers=player.headers).json()["bet_creation_enabled"]
+    closed = make_client(bet_creation_enabled=False)
+    api = Api(closed, clock, psp)
+    api.relogin(bookie, player)
+
+    refused = closed.post("/api/bets", json=api.bet_body(), headers=bookie.headers)
+
+    assert refused.status_code == 503
+    assert refused.json()["error"]["message"].startswith(
+        "La création de paris est momentanément indisponible."
+    )
+    assert closed.get("/api/me", headers=bookie.headers).json()["bet_creation_enabled"] is False
+    assert closed.get("/api/bets", headers=bookie.headers).json()["items"][0]["id"] == bet["id"]
+    assert api.stake(player, bet["id"], "OUI", 1000).status_code == 201
+    assert api.balance(player) == 4000
+    assert api.start_deposit(player, 1000).status_code == 201

@@ -56,3 +56,4 @@ class MeResponse(BaseModel):
     display_name: str
     role: str
     kyc_status: str
+    bet_creation_enabled: bool
