@@ -39,6 +39,34 @@ def test_three_refused_payments_in_a_row_alert_once_per_account() -> None:
     assert _names(lines) == [("PAIEMENTS_REFUSES_EN_SERIE", "haute", "alice")]
 
 
+def test_refusals_hidden_between_small_successes_still_alert_within_an_hour() -> None:
+    def refused(seconds: float, user: str) -> str:
+        return _line(seconds, "money.deposit_failed", user_id=user)
+
+    def credited(seconds: float, user: str) -> str:
+        return _line(seconds, "money.deposit_credited", user_id=user)
+
+    carding = [
+        line
+        for i in range(5)
+        for line in (refused(i * 600, "mallory"), credited(i * 600 + 60, "mallory"))
+    ]
+    almost = [
+        line
+        for i in range(4)
+        for line in (refused(i * 300, "trent"), credited(i * 300 + 30, "trent"))
+    ]
+    spread_over_more_than_an_hour = [refused(i * 1000, "oscar") for i in range(5)]
+    interleaved = [refused(i * 1000, "peggy") for i in range(2)] + [credited(1500, "peggy")]
+
+    alerts = _names(carding + almost + spread_over_more_than_an_hour + interleaved)
+
+    assert alerts == [
+        ("PAIEMENTS_REFUSES_REPETES", "haute", "mallory"),
+        ("PAIEMENTS_REFUSES_EN_SERIE", "haute", "oscar"),
+    ]
+
+
 def test_invalid_webhook_signatures_and_ledger_failure_are_critical() -> None:
     spread = [_line(i * 200, "psp.webhook_rejected", client_ip="203.0.113.9") for i in range(3)]
     burst = [_line(1000 + i, "psp.webhook_rejected", client_ip="203.0.113.9") for i in range(3)]

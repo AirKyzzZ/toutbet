@@ -52,7 +52,8 @@ def _parse(line: str) -> tuple[dict[str, Any], datetime] | None:
 
 
 def evaluate(lines: Iterable[str]) -> Iterator[Alert]:
-    refused_payments = SlidingCount(3, timedelta(hours=1))
+    refused_in_a_row = SlidingCount(3, timedelta(hours=1))
+    refused_in_window = SlidingCount(5, timedelta(hours=1))
     bad_webhooks = SlidingCount(3, timedelta(minutes=5))
     login_failures = SlidingCount(20, timedelta(minutes=1))
     for line in lines:
@@ -66,10 +67,13 @@ def evaluate(lines: Iterable[str]) -> Iterator[Alert]:
             yield Alert("GRAND_LIVRE_INCOHERENT", CRITICAL, ts, None)
         elif name == "psp.webhook_rejected" and bad_webhooks.add("all", moment):
             yield Alert("WEBHOOK_PSP_SIGNATURE_INVALIDE", CRITICAL, ts, client_ip)
-        elif name == "money.deposit_failed" and refused_payments.add(user_id, moment):
-            yield Alert("PAIEMENTS_REFUSES_EN_SERIE", HIGH, ts, user_id)
+        elif name == "money.deposit_failed":
+            if refused_in_a_row.add(user_id, moment):
+                yield Alert("PAIEMENTS_REFUSES_EN_SERIE", HIGH, ts, user_id)
+            if refused_in_window.add(user_id, moment):
+                yield Alert("PAIEMENTS_REFUSES_REPETES", HIGH, ts, user_id)
         elif name == "money.deposit_credited":
-            refused_payments.reset(user_id)
+            refused_in_a_row.reset(user_id)
         elif (
             name == "http.request"
             and event.get("route") == LOGIN_ROUTE
