@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
+from toutbet.alerts import evaluate
 from toutbet.clock import SystemClock
 from toutbet.config import ConfigurationError, load_database_settings
 from toutbet.db import make_engine
@@ -119,6 +120,14 @@ def verify(_args: argparse.Namespace) -> int:
     return 0
 
 
+def check_alerts(args: argparse.Namespace) -> int:
+    with args.log.open(encoding="utf-8", errors="replace") as lines:
+        alerts = [alert.to_json() for alert in evaluate(lines)]
+    for alert in alerts:
+        _write(alert)
+    return 1 if alerts else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="toutbet-admin")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -132,6 +141,9 @@ def build_parser() -> argparse.ArgumentParser:
     moderator.add_argument("--birth-date", required=True)
     moderator.set_defaults(handler=create_moderator)
     commands.add_parser("verify-ledger").set_defaults(handler=verify)
+    alerts = commands.add_parser("check-alerts")
+    alerts.add_argument("log", type=Path)
+    alerts.set_defaults(handler=check_alerts)
     return parser
 
 
