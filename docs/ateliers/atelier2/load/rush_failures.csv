@@ -1,0 +1,3 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,GET /api/wallet,CatchResponseError('500 erreur serveur'),2801,2026-11-25T14:07:52Z,2026-11-25T14:08:01Z
+GET,GET /api/wallet,CatchResponseError('connexion perdue ou timeout'),5346,2026-11-25T14:07:52Z,2026-11-25T14:08:01Z

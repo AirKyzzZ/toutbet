@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,POST /api/auth/login,CatchResponseError('429 limitation de débit'),39610,2026-11-25T13:50:13Z,2026-11-25T13:53:12Z
